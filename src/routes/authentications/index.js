@@ -26,15 +26,15 @@ const login = async (req, res, next) => {
 
   const { username, password } = req.body;
   const user = await models.user.findOne({
-    where: { $or: [{ username }, { email: username }] }
+    where: { [Op.or]: { username: username.trim(), email: username.trim() } }
   });
 
   if (user) {
-    const hash = makeSha512(password, user.salt);
+    const hash = makeSha512(password, user.password_salt);
 
     if (hash === user.password_hash) {
       const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-      const token = await user.createAccessToken(ipAddress);
+      const token = await user.createAccessToken(ip_address);
       return res.send(200, token.toJSON());
     }
   }
