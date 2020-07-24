@@ -1,0 +1,16 @@
+{
+  "ignore": [
+    ".git",
+    "data"
+  ],
+  "verbose": true,
+  "exec": "babel-node src/server.js",
+  "watch": [
+    "src",
+    "node_modules"
+  ],
+  "env": {
+    "NODE_ENV": "development"
+  },
+  "ext": "js,json"
+}
