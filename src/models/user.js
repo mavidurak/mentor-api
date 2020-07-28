@@ -50,7 +50,12 @@ const initialize = (models) => {
     as: 'user_tokens',
     foreignKey: 'user_id',
     sourceKey: 'id'
-  });
+  },
+  models.user.hasMany(models.dataSets, {
+    as: 'user_dataSets',
+    foreignKey: 'user_id',
+    sourceKey: 'id'
+  }));
 
   models.user.prototype.toJSON = function () {
     const values = { ...this.get() };
