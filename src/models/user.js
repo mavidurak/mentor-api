@@ -51,8 +51,8 @@ const initialize = (models) => {
     foreignKey: 'user_id',
     sourceKey: 'id'
   },
-  models.user.hasMany(models.dataSets, {
-    as: 'user_dataSets',
+  models.user.hasMany(models.data_sets, {
+    as: 'user_data_sets',
     foreignKey: 'user_id',
     sourceKey: 'id'
   }));

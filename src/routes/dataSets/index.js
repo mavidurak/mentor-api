@@ -1,5 +1,5 @@
 import Joi from 'joi';
-import { Op } from 'sequelize';
+import { Op, EmptyResultError } from 'sequelize';
 
 import models from '../../models';
 
@@ -26,13 +26,13 @@ const create = async (req, res, next) => {
   }
 
   const { title, key_title, description } = req.body;
-  let dataSet = await models.dataSets.findOne({
+  let dataSet = await models.data_sets.findOne({
     where: { [Op.and]: { user_id: user_id, title: title, key_title: key_title, description: description } }
   });
   if(dataSet) {
     return res.send({err: "The Data Set already exists"})
   }
-  dataSet = await models.dataSets.create({
+  dataSet = await models.data_sets.create({
     user_id,
     title,
     key_title,
@@ -44,9 +44,11 @@ const create = async (req, res, next) => {
 
 const list = async (req, res, next) => {
   const user_id = req.user.id;
-  models.dataSets.findAll({
+  models.data_sets.findAll({
     where: {user_id: user_id}
   }).then(data => {
+    if(data.length == 0)
+      return res.send({message: "You don't have a data sets"})
     res.send(data)
   }).catch(err => {
       res.status(500).send({
@@ -60,7 +62,7 @@ const list = async (req, res, next) => {
 const detail = async (req, res, next) => {
   const id = req.params.id;
   const user_id = req.user.id;
-	models.dataSets.findOne({where: {
+	models.data_sets.findOne({where: {
     user_id: user_id,
     id: id
   }})
@@ -80,7 +82,7 @@ const detail = async (req, res, next) => {
 const update = async (req, res, next) => {
   const id = req.params.id;
   const user_id = req.user.id;
-  models.dataSets.update(req.body, {where: {
+  models.data_sets.update(req.body, {where: {
     user_id: user_id,
     id: id
   }}
@@ -101,7 +103,7 @@ const update = async (req, res, next) => {
 const deleteById = async (req, res, next) => {
   const id = req.params.id;
   const user_id = req.user.id;
-	models.dataSets.destroy({where: {
+	models.data_sets.destroy({where: {
     user_id: user_id,
     id: id
   }})

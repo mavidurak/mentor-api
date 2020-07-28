@@ -2,8 +2,8 @@ import { DataTypes } from 'sequelize';
 
 import Sequelize from '../sequelize';
 
-const dataSets = Sequelize.define(
-    'dataSets',
+const data_sets = Sequelize.define(
+    'data_sets',
     {
           user_id: {
             type: DataTypes.INTEGER,
@@ -24,12 +24,12 @@ const dataSets = Sequelize.define(
     },
     {
       timestamps: true,
-      underscored: false
+      underscored: true
     }
 )
 
 const initialize = (models) => {
-  models.dataSets.belongsTo(models.user, {
+  models.data_sets.belongsTo(models.user, {
     as: 'user',
     foreignKey: {
       name: 'user_id',
@@ -38,4 +38,4 @@ const initialize = (models) => {
   });
 };
 
-export default { model: dataSets, initialize };
+export default { model: data_sets, initialize };

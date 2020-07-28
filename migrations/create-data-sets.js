@@ -3,7 +3,7 @@
 module.exports = {
   up: function(queryInterface, Sequelize) {
     return queryInterface.createTable(
-      'dataSets',
+      'data_sets',
       {
         id: {
           allowNull: false,
@@ -27,21 +27,21 @@ module.exports = {
           type: Sequelize.STRING,
           allowNull: true
         },
-        createdAt: {
+        created_at: {
           allowNull: false,
           type: Sequelize.DATE
         },
-        updatedAt: {
+        updated_at: {
           allowNull: false,
           type: Sequelize.DATE
         },
-        deletedAt: {
+        deleted_at: {
           type: Sequelize.DATE
         }
       }
     );
   },
   down: function(queryInterface, Sequelize) {
-    return queryInterface.dropTable('dataSets');
+    return queryInterface.dropTable('data_sets');
   }
 };
