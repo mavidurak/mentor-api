@@ -9,18 +9,19 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       dataset_id: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        references: {
-          model: 'data_sets',
-          key: 'id'
-        }
+        type: Sequelize.INTEGER
       },
       value: {
         type: Sequelize.DOUBLE
       },
-      createdAt: {
+      created_at: {
         allowNull: false,
+        type: Sequelize.DATE
+      },
+      updated_at: {
+        type: Sequelize.DATE
+      },
+      deleted_at: {
         type: Sequelize.DATE
       }
     });
