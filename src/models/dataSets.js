@@ -24,6 +24,7 @@ const data_sets = Sequelize.define(
     },
     {
       timestamps: true,
+      paranoid: true,
       underscored: true
     }
 )

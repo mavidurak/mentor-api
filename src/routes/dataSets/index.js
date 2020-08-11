@@ -1,6 +1,4 @@
 import Joi from 'joi';
-import { Op, EmptyResultError } from 'sequelize';
-
 import models from '../../models';
 
 const create_validation = {
@@ -27,10 +25,15 @@ const create = async (req, res, next) => {
 
   const { title, key_title, description } = req.body;
   let dataSet = await models.data_sets.findOne({
-    where: { [Op.and]: { user_id: user_id, title: title, key_title: key_title, description: description } }
+    where: { 
+      user_id,
+      title,
+      key_title, 
+      description
+    }
   });
   if(dataSet) {
-    return res.send({err: "The Data Set already exists"})
+    return res.send({message: "The Data Set already exists"})
   }
   dataSet = await models.data_sets.create({
     user_id,
@@ -45,16 +48,31 @@ const create = async (req, res, next) => {
 const list = async (req, res, next) => {
   const user_id = req.user.id;
   models.data_sets.findAll({
-    where: {user_id: user_id}
-  }).then(data => {
-    if(data.length == 0)
-      return res.send({message: "You don't have a data sets"})
-    res.send(data)
-  }).catch(err => {
+    where: {
+      user_id
+    }
+  });
+  
+  const data = await models.data_sets.findAll({
+    where: {
+      user_id
+    }
+  });
+  
+  if(data.length){ //if (data.length != 0) is true data is not empty so send dataSets else send message
+    res.send(data);
+  }
+  else{
+    res.status(403).send({
+      message: 'You dont have a data set.'
+    })
+  }
+  
+  data.catch(err => {
       res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving data sets."
-      });
+      message:
+        err.message || "Some error occurred while retrieving data sets."
+    });
 	});
     
 }
@@ -62,76 +80,126 @@ const list = async (req, res, next) => {
 const detail = async (req, res, next) => {
   const id = req.params.id;
   const user_id = req.user.id;
-	models.data_sets.findOne({where: {
-    user_id: user_id,
-    id: id
+	const data = await models.data_sets.findOne({where: {
+    user_id,
+    id
   }})
-	  .then(data => {
-		    if(data)
-				res.send(data);
-      else
-        res.send({err: `Error! No such dataSet(id=${id}) or You don't have permission to see the this data set`});
-	  })
-	  .catch(err => {
-		res.status(500).send(err || {
-		  message: "Error retrieving Data set with id=" + id
-		});
-	  });
+  
+  if(data){
+    res.send(data);
+  }
+  else{
+    const isExist = await models.data_sets.findOne({
+      where: {
+        id
+      }    
+    });
+    if(!isExist){
+      res.status(403).send({
+        message: 'Not found Data set!'
+      });
+    }
+    else{
+      res.status(401).send({
+        message: 'You DO NOT have permision to list this Data set!'
+      })
+    }
+  }
+
+  data.catch(err => {
+    res.status(500).send(
+      err || {
+      message: "Error retrieving Data set with id=" + id
+    });
+  });
 }
 
 const update = async (req, res, next) => {
   const id = req.params.id;
   const user_id = req.user.id;
-  models.data_sets.update(req.body, {where: {
-    user_id: user_id,
-    id: id
-  }}
-    ).then(num => {
-      if(num == 1)
-        res.send({message: `Id= ${id} was updated saccesfully`});
-      else
-      res.send({
-        err: `Error updating data set with id=${id}.No such dataSet(id=${id}) or You don't have permission to see the this data set`
+  const dataSet = await models.data_sets.update(req.body, {
+    where: {
+      user_id,
+      id
+    }
+  })
+    
+  if(dataSet){
+    res.send({
+      message: `Id= ${id} was updated saccesfully`
+    });
+  }
+  else{
+    const isExist = await models.data_sets.findOne({
+      where: {
+        id
+      }    
+    });
+    if(!isExist){
+      res.status(403).send({
+        message: 'Not found Data set!'
+      });
+    }
+    else{
+      res.status(401).send({
+        message: 'You DO NOT have permision to update this Data set!'
       })
-    }).catch(err => {
-      res.status(500).send(err || {
-        message: "Could not update Data set with id=" + id
-      })
-    })
+    }
+  }
+dataSet.catch(err => {
+  res.status(500).send(err || {
+    message: "Could not update Data set with id=" + id
+  })
+})
 }
 
 const deleteById = async (req, res, next) => {
   const id = req.params.id;
   const user_id = req.user.id;
-	models.data_sets.destroy({where: {
-    user_id: user_id,
-    id: id
-  }})
-	  .then(num => {
-		if (num == 1) {
-		  res.send({
-			message: `Data set was deleted successfully!`
-		  });
-		} else {
-		  res.send({
-			message: `Cannot delete Data set with id=${id}.No such dataSet(id=${id}) or You don't have permission to see the this data set`
-		  });
-		}
-	  })
-	  .catch(err => {
-		res.status(500).send(err || {
-		  message: "Could not delete Data set with id=" + id
-		});
-	  });
+	const dataSet = await models.data_sets.destroy({
+    where: {
+      user_id,
+      id
+    }
+  })
+
+  if (dataSet) {
+    res.send({
+      message: `Data set was deleted successfully!`
+    });
+  } 
+  else {
+    const isExist = await models.data_sets.findOne({
+      where: {
+        id
+      }    
+    });
+    if(!isExist){
+      res.status(403).send({
+        message: 'Not found Data set!'
+      });
+    }
+    else{
+      res.status(401).send({
+        message: 'You DO NOT have permision to delete this Data set!'
+      })
+    }
+  }
+  
+  dataSet.catch(err => {
+    res.status(500).send(err || {
+      message: "Could not delete Data set with id=" + id
+      });
+    });
 }
 
 export default {
   prefix: '/data-sets',
   inject: (router) => {
-    router.get('/list', list);
-    router.get('/detail/:id', detail);
-    router.post('/create', create);
-    router.put('/update/:id', update);
-    router.delete('/delete/:id', deleteById);
+    router.get('', list);
+    router.post('', create);
+    router.get('/:id', detail);
+    router.put('/:id', update);
+    router.delete('/:id', deleteById);
   }
 }
