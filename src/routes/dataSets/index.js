@@ -172,30 +172,6 @@ const deleteById = async (req, res, next) => {
       })
     }
   }
-  else {
-    const isExist = await models.data_sets.findOne({
-      where: {
-        id
-      }
-    });
-    if (!isExist) {
-      res.status(403).send({
-        message: 'Not found Data set!'
-      });
-    }
-    else {
-      res.status(401).send({
-        message: 'You DO NOT have permision to delete this Data set!'
-      })
-    }
-  }
-
-  dataSet.catch(err => {
-    res.status(500).send(err || {
-      message: "Could not delete Data set with id=" + id
-    });
-  });
-}
 
 export default {
   prefix: '/data-sets',
