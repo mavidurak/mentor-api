@@ -1,6 +1,6 @@
 const database = 'mavidurak';
-const username = 'root';
-const password = '123456';
+const username = 'newuser';
+const password = 'ads345';
 const host = 'localhost';
 const port = '3306';
 
