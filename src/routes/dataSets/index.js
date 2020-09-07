@@ -172,6 +172,7 @@ const deleteById = async (req, res, next) => {
       })
     }
   }
+}
 
   dataSet.catch(err => {
     res.status(500).send(err || {
