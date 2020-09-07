@@ -10,7 +10,7 @@ export default async (req, res, next) => {
   const token = req.get(TOKEN_KEY);
 
   if (token) { 
-    const { user } = await models.token.findOne({
+    const data = await models.token.findOne({
       where: { token_value: token },
       include: [
         {
@@ -19,7 +19,11 @@ export default async (req, res, next) => {
         }
       ]
     });
-    req.user = user.toJSON();
+
+    if (data) {
+      req.user = data.user.toJSON();
+    }
+
   }
 
   if (is_ignored || req.user) { return next(); }
