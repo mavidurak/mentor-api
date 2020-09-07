@@ -172,7 +172,7 @@ const deleteById = async (req, res, next) => {
       })
     }
   }
-
+}
 export default {
   prefix: '/data-sets',
   inject: (router) => {
