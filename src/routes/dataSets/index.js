@@ -88,7 +88,7 @@ const detail = async (req, res, next) => {
   }
   else {
     res.status(403).send({
-      message: 'Not found Data set!'
+      message: 'Data set not found !'
     });
   }
 
@@ -126,7 +126,7 @@ const update = async (req, res, next) => {
     }
     else {
       res.status(401).send({
-        message: 'You DO NOT have permision to update this Data set!'
+        message: 'you DO NOT have permission to update this data set!'
       })
     }
   }
@@ -138,7 +138,7 @@ const update = async (req, res, next) => {
 
   dataSet.catch(err => {
     res.status(500).send(err || {
-      message: "Could not update Data set with id=" + id
+      message: "Could NOT update Data set with id=" + id
     })
   })
 }
@@ -171,14 +171,13 @@ const deleteById = async (req, res, next) => {
         message: 'You DO NOT have permision to delete this Data set!'
       })
     }
-  }
-}
 
-  dataSet.catch(err => {
-    res.status(500).send(err || {
-      message: "Could not delete Data set with id=" + id
+    dataSet.catch(err => {
+      res.status(500).send(err || {
+        message: "Could NOT delete Data set with id=" + id
+      });
     });
-  });
+  }
 }
 
 export default {
