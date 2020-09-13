@@ -35,11 +35,11 @@ const login = async (req, res, next) => {
     if (hash === user.password_hash) {
       const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
       const token = await user.createAccessToken(ip_address);
-      return res.send(200, token.toJSON());
+      return res.status(200).send({token: token.toJSON()});
     }
   }
   
-  res.send(400, { error: 'Kullanıcı bulunamadı!' });
+  res.send(400, { error: 'User not found!' });
 };
 
 const register_validation = {
@@ -70,7 +70,7 @@ const register = async (req, res, next) => {
   });
 
   if (user) {
-    return res.send(400, { error: 'E-posta adresi veya kullanıcı adı kullanılıyor!' });
+    return res.send(400, { error: 'E-mail address or username is used!' });
   }
 
   const {

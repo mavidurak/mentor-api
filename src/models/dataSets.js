@@ -3,29 +3,26 @@ import { DataTypes } from 'sequelize';
 import Sequelize from '../sequelize';
 
 const data_sets = Sequelize.define(
-    'data_sets',
-    {
-          user_id: {
-            type: DataTypes.INTEGER,
-            allowNull: true
-          },
-          title: {
-            type: DataTypes.STRING,
-            allowNull: false
-          },
-          key_title: {
-            type: DataTypes.STRING,
-            allowNull: false
-          },
-          description: {
-            type: DataTypes.STRING,
-            allowNull: true
-          }
+  'data_sets',
+  {
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false
     },
-    {
-      timestamps: true,
-      underscored: true
+    key_title: {
+      type: DataTypes.STRING,
+      allowNull: false
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: true
     }
+  },
+  {
+    timestamps: true,
+    paranoid: true,
+    underscored: true
+  }
 )
 
 const initialize = (models) => {
