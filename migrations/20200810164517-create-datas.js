@@ -9,7 +9,11 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       dataset_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        references: {
+          model: 'data_sets',
+          key: 'id'
+        },
       },
       value: {
         type: Sequelize.DOUBLE
