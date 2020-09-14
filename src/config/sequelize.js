@@ -1,9 +1,7 @@
-const database = 'mavidurak';
-const username = 'root';
-const password = '123456';
-const host = 'localhost';
-const port = '3306';
-
+const database = process.env.DATABASE;
+const username = process.env.USERNAME;
+const password = process.env.PASSWORD;
+const host = process.env.HOST;
 
 module.exports = {
   development: {

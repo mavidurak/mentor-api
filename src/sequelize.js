@@ -1,7 +1,5 @@
 import Sequelize from 'sequelize';
-
 import { development as db_config } from './config/sequelize';
-
 
 const connection = new Sequelize(
   db_config.database,
