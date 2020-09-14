@@ -39,7 +39,7 @@ const login = async (req, res, next) => {
     }
   }
   
-  res.send(400, { error: 'Kullanıcı bulunamadı!' });
+  res.send(400, { error: 'User not found!' });
 };
 
 const register_validation = {
@@ -70,7 +70,7 @@ const register = async (req, res, next) => {
   });
 
   if (user) {
-    return res.send(400, { error: 'E-posta adresi veya kullanıcı adı kullanılıyor!' });
+    return res.send(400, { error: 'E-mail address or username is used!' });
   }
 
   const {

@@ -31,7 +31,7 @@ export default async (req, res, next) => {
   res.send(
     401,
     {
-      message: 'Buraya ulaşmak için oturum açmanız gerekiyor'
+      message: 'You must be login to access here'
     }
   );
 };
