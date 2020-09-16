@@ -1,61 +1,65 @@
-import util from 'util';
+import util from "util";
 
-import { DataTypes } from 'sequelize';
+import { DataTypes, DATE } from "sequelize";
 
-import Sequelize from '../sequelize';
+import Sequelize from "../sequelize";
 
 import {
   intToBase36,
   base36ToInt,
   b64Encode,
   encrypt,
-  createSaltHashPassword
-} from '../utils/encryption';
-
+  createSaltHashPassword,
+} from "../utils/encryption";
 
 const user = Sequelize.define(
-  'user',
-  {
-    username: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
-    },
-    email: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true
-    },
-    name: {
-      type: DataTypes.STRING
-    },
-    password_salt: {
-      type: DataTypes.STRING,
-      allowNull: false
-    },
-    password_hash: {
-      type: DataTypes.STRING,
-      allowNull: false
-    }
+  "user", {
+  username: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
   },
-  {
-    timestamps: true,
-    paranoid: true,
-    underscored: true
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true,
+  },
+  name: {
+    type: DataTypes.STRING,
+  },
+  password_salt: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  password_hash: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  confirmation_token: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: null
   }
+}, {
+  timestamps: true,
+  paranoid: true,
+  underscored: true,
+}
 );
 
 const initialize = (models) => {
-  models.user.hasMany(models.token, {
-    as: 'user_tokens',
-    foreignKey: 'user_id',
-    sourceKey: 'id'
+  models.user.hasMany(
+    models.token, {
+    as: "user_tokens",
+    foreignKey: "user_id",
+    sourceKey: "id",
   },
-  models.user.hasMany(models.data_sets, {
-    as: 'user_data_sets',
-    foreignKey: 'user_id',
-    sourceKey: 'id'
-  }));
+    models.user.hasMany(models.data_sets, {
+      as: "user_data_sets",
+      foreignKey: "user_id",
+      sourceKey: "id",
+    })
+  );
 
   models.user.prototype.toJSON = function () {
     const values = { ...this.get() };
@@ -76,7 +80,7 @@ const initialize = (models) => {
       user_id: this.id,
       token_value: encrypt(key),
       expired_at,
-      ip_address
+      ip_address,
     });
 
     return token;
@@ -89,6 +93,4 @@ const initialize = (models) => {
   };
 };
 
-
 export default { model: user, initialize };
-
