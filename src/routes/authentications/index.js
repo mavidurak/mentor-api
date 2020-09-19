@@ -34,7 +34,7 @@ const login = async (req, res, next) => {
 
     if (hash === user.password_hash) {
       if (user.confirmation_token !== null) {
-        return res.send(401, { message: 'Account not confirmated' })// confirm edilmediyse hangi status dönecek??
+        return res.send(401, { message: 'This account not confirmated' })// confirm edilmediyse hangi status dönecek??
       }
       const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
       const token = await user.createAccessToken(ip_address);
@@ -113,7 +113,6 @@ const confirmEmail = async (req, res, next) => {
   await user.save()
   //res.send(200, { message: 'Success! Your account has been confirmed' });
   return res.redirect('http://localhost:8080/login')
-
 
 }
 
