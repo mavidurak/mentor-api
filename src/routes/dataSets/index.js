@@ -52,7 +52,7 @@ const list = async (req, res, next) => {
       user_id: req.user.id
     }
   });
-
+  
   res.send(
     {
       results: dataSet.rows,
