@@ -17,7 +17,7 @@ const changePassword = async (req, res, next) => {
 const { password,newPassword } = req.body;
 
 const user = await models.user.findOne({
-  where: { [Op.or]: { username: req.user.username.trim(), email: req.user.username.trim() } }
+  where: {  id: req.user.id}
 });
 
 
@@ -68,7 +68,7 @@ const changeUsername = async (req, res, next) => {
 const { newUsername,password } = req.body;
 
 const user = await models.user.findOne({
-  where: { [Op.or]: { username: req.user.username.trim(), email: req.user.username.trim() } }
+  where: {  id: req.user.id}
 });
   //----//
   if (user) {
