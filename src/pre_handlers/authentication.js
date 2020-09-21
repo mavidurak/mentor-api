@@ -9,7 +9,7 @@ export default async (req, res, next) => {
   ) > -1;
   const token = req.get(TOKEN_KEY);
 
-  if (token) { 
+  if (token) {
     const data = await models.token.findOne({
       where: { token_value: token },
       include: [
