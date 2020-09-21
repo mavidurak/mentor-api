@@ -14,7 +14,7 @@ const connection = new Sequelize(
 connection.authenticate()
   .then(() => {
     console.log('MYSQL Connection done');
-  });
+  }).catch(error => console.log(error));
 
 
 export default connection;
