@@ -1,8 +1,8 @@
 import nodemailer from 'nodemailer'
-
+import { b64Encode } from './encryption';
 
 export const sendEmail = async (user) => {
-  const href = `http://localhost:4000/authentications/email-confirmation?token=${user.confirmation_token}`;
+  const href = `${process.env.BACKEND_PATH}/authentications/email-confirmation?token=${b64Encode(user.email)}`;
 
   const buttonText = `Confirm`;
 
@@ -233,28 +233,25 @@ export const sendEmail = async (user) => {
   `
 
   let transporter = nodemailer.createTransport({
-    host: `${process.env.EMAILHOST}`,
-    port: `${process.env.EMAILPORT}`,
+    host: `${process.env.EMAIL_HOST}`,
+    port: `${process.env.EMAIL_PORT}`,
     secure: false, // true for 465, false for other ports
     auth: {
-      user: `${process.env.EMAILUSER}`, // generated ethereal user or someone smtp server like elasticemail
-      pass: `${process.env.EMAILPASSWORD}`, // user password
+      user: `${process.env.EMAIL_USER}`, // generated ethereal user or someone smtp server like elasticemail
+      pass: `${process.env.EMAIL_PASSWORD}`, // user password
     },
   });
 
   // send mail with defined transport object
   let info = await transporter.sendMail({
-    from: `${process.env.EMAILUSER}`,
+    from: `${process.env.EMAIL_USER}`,
     to: `${user.email}`,
     subject: subject,
     html: htmlCode,
   });
 
-  console.log(`++++++++++++++++| ${buttonText} Message sent to ${user.email} - ${info.messageId} |++++++++++++++++`);
+  console.log(`\n++++++++++++++++| ${buttonText} Message sent to ${user.email} - ${info.messageId} |++++++++++++++++\n`);
 
-  // Preview only available when sending through an Ethereal account
-  //console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-  // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
 };
 
 export default {
