@@ -27,7 +27,7 @@ export default async (req, res, next) => {
   }
 
   if (is_ignored || req.user) { return next(); }
-
+  
   res.send(
     401,
     {
