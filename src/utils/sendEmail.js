@@ -83,7 +83,7 @@ export const sendEmail = async (user) => {
                             <tbody>
                               <tr>
                                 <td valign="top" class="edimg" style="padding: 20px; box-sizing: border-box; text-align: center;">
-                                  <img src="https://s3.amazonaws.com/media-p.slid.es/uploads/292291/images/1309784/mavidurak-io-large-dark.png" alt="Image" width="544" style="border-width: 0px; border-style: none; max-width: 544px; width: 100%;">
+                                  <img src="https://s3.amazonaws.com/media-p.slid.es/uploads/292291/images/1309784/mavidurak-io-large-dark.png" alt="MaviDurak-IO" width="544" style="border-width: 0px; border-style: none; max-width: 544px; width: 100%;">
                                 </td>
                               </tr>
                             </tbody>
@@ -233,12 +233,12 @@ export const sendEmail = async (user) => {
   `
 
   let transporter = nodemailer.createTransport({
-    host: `${process.env.EMAIL_HOST}`,
-    port: `${process.env.EMAIL_PORT}`,
-    secure: false, // true for 465, false for other ports
+    host: process.env.EMAIL_HOST,
+    port: process.env.EMAIL_PORT,
+    secure: process.env.EMAIL_SECURE, // true for 465, false for other ports
     auth: {
-      user: `${process.env.EMAIL_USER}`, // generated ethereal user or someone smtp server like elasticemail
-      pass: `${process.env.EMAIL_PASSWORD}`, // user password
+      user: process.env.EMAIL_USER, // generated ethereal user or someone smtp server like elasticemail or gmail
+      pass: process.env.EMAIL_PASSWORD, // user password
     },
   });
 
