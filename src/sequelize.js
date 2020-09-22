@@ -1,7 +1,5 @@
 import Sequelize from 'sequelize';
-
 import { development as db_config } from './config/sequelize';
-
 
 const connection = new Sequelize(
   db_config.database,
@@ -16,7 +14,7 @@ const connection = new Sequelize(
 connection.authenticate()
   .then(() => {
     console.log('MYSQL Connection done');
-  });
+  }).catch(error => console.log(error));
 
 
 export default connection;
