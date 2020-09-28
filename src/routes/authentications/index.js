@@ -2,7 +2,7 @@ import Joi from 'joi';
 import { Op } from 'sequelize';
 import { sendEmail } from '../../utils/sendEmail'
 import models from '../../models';
-import { makeSha512, createSaltHashPassword, encrypt } from '../../utils/encryption';
+import { makeSha512, createSaltHashPassword, encrypt, b64Encode, b64Decode } from '../../utils/encryption';
 
 
 const login_validation = {
@@ -33,8 +33,8 @@ const login = async (req, res, next) => {
     const hash = makeSha512(password, user.password_salt);
 
     if (hash === user.password_hash) {
-      if (user.confirmation_token !== null) {
-        return res.send(401, { message: 'This account not confirmated' })// confirm edilmediyse hangi status dönecek??
+      if (user.email_confirmation === false) {
+        return res.send(403, { message: 'This account not confirmated' })
       }
       const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
       const token = await user.createAccessToken(ip_address);
@@ -86,8 +86,7 @@ const register = async (req, res, next) => {
     email,
     name,
     password_salt,
-    password_hash,
-    confirmation_token: encrypt(`${username}_${name}`)
+    password_hash
   })
 
   const token = await user.createAccessToken(ip_address);
@@ -100,19 +99,17 @@ const me = (req, res, next) => {
 }
 
 const confirmEmail = async (req, res, next) => {
-  const confirmation_token = req.query.token;
   const user = await models.user.findOne({
     where: {
-      confirmation_token: confirmation_token
+      email: b64Decode(req.query.token)
     }
   });
   if (!user) {
-    res.send(405, { message: 'Error! Your account has already been confirmed' })
+    res.send(403, { message: 'Error! Your account has already been confirmed' })
   }
-  user.confirmation_token = null;
+  user.email_confirmation = true;
   await user.save()
-  //res.send(200, { message: 'Success! Your account has been confirmed' });
-  return res.redirect('http://localhost:8080/login')
+  return res.redirect(`${process.env.FRONTEND_PATH}/login`);
 
 }
 

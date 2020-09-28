@@ -35,10 +35,9 @@ const user = Sequelize.define(
     type: DataTypes.STRING,
     allowNull: false,
   },
-  confirmation_token: {
-    type: DataTypes.STRING,
-    allowNull: true,
-    defaultValue: null
+  email_confirmation: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false
   }
 }, {
   timestamps: true,
