@@ -63,9 +63,24 @@ const user = await models.user.findOne({
   }
 };
 
+const username_validation = {
+  newUsername: Joi.string()
+  .alphanum()
+  .min(3)
+  .max(30)
+  .required(),
+  
+};
+
 const changeUsername = async (req, res, next) => {
 
 const { newUsername,password } = req.body;
+
+const { error, value } = username_validation.newUsername.validate(newUsername);
+    if (error) {
+      console.log('hata')
+      return res.status(400).send( {message: 'New Password must be min 3 max 30 character' });
+    }
 
 const user = await models.user.findOne({
   where: {  id: req.user.id}
