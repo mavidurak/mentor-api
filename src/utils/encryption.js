@@ -1,8 +1,6 @@
 import crypto from 'crypto';
-
 import { SECRET_KEY } from '../constants/api';
 import makeSalt from './makeSalt';
-
 
 export const encrypt = (data, cryptType = 'sha256', secret = SECRET_KEY, encoding = 'hex') => (
   crypto.createHmac(cryptType, secret)
@@ -28,7 +26,7 @@ export const makeSha512 = (password, salt) => {
 export const createSaltHashPassword = (password) => {
   const salt = makeSalt(12);
   const hash = makeSha512(password, salt);
-  
+
   return {
     salt,
     hash

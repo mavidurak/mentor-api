@@ -2,7 +2,7 @@
 
 
 module.exports = {
-  up: function(queryInterface, Sequelize) {
+  up: function (queryInterface, Sequelize) {
     return queryInterface.createTable(
       'users',
       {
@@ -31,6 +31,10 @@ module.exports = {
           type: Sequelize.STRING,
           allowNull: false
         },
+        confirmation_token: {
+          type: Sequelize.STRING,
+          allowNull: true
+        },
         created_at: {
           allowNull: false,
           type: Sequelize.DATE
@@ -45,7 +49,7 @@ module.exports = {
       }
     );
   },
-  down: function(queryInterface, Sequelize) {
+  down: function (queryInterface, Sequelize) {
     return queryInterface.dropTable('users');
   }
 };
