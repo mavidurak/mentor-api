@@ -112,7 +112,7 @@ const update = async(req, res, next) => {
                 }
             })
             res.send({
-                message: `Id= ${id} was updated saccesfully`
+                message: `Id= ${id} was updated succesfully`
             });
         } else {
             res.status(401).send({
