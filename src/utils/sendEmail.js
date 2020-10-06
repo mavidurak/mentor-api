@@ -1,8 +1,8 @@
 import nodemailer from 'nodemailer'
 import { b64Encode } from './encryption';
 
-export const sendEmail = async (user) => {
-  const href = `${process.env.BACKEND_PATH}/authentications/email-confirmation?token=${b64Encode(user.email)}`;
+export const sendEmail = async (user, token) => {
+  const href = `${process.env.BACKEND_PATH}/authentications/email-confirmation?token=${token}`;
 
   const buttonText = `Confirm`;
 

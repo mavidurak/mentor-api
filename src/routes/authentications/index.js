@@ -31,9 +31,13 @@ const login = async (req, res, next) => {
 
   if (user) {
     const hash = makeSha512(password, user.password_salt);
-
     if (hash === user.password_hash) {
-      if (user.email_confirmation === false) {
+      const emailConfirm = await models.email_confirmation_token.findOne({
+        where: {
+          user_id: user.id
+        }
+      })
+      if (emailConfirm.token_value != null) {
         return res.send(403, { message: 'This account not confirmated' })
       }
       const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -56,8 +60,8 @@ const register_validation = {
       .max(30)
       .required(),
     email: Joi.string()
-      .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }),
-    name: Joi.string().min(5).max(30).required()
+      .email({ minDomainSegments: 2, tlds: { allow: ['com', 'net', 'edu'] } }),
+    name: Joi.string().min(3).max(30).required()
   })
 };
 const register = async (req, res, next) => {
@@ -80,7 +84,6 @@ const register = async (req, res, next) => {
     hash: password_hash
   } = createSaltHashPassword(password);
   const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-
   user = await models.user.create({
     username,
     email,
@@ -90,25 +93,28 @@ const register = async (req, res, next) => {
   })
 
   const token = await user.createAccessToken(ip_address);
-  res.send(201, { user: user.toJSON(), token: token.toJSON() });
 
-  sendEmail(user);
+  const confirmation_token = await user.createConfirmationToken();
+
+  res.send(201, { user: user.toJSON(), token: token.toJSON(), confirmationToken: confirmation_token.toJSON() });
+
+  sendEmail(user, confirmation_token.token_value);
 };
 const me = (req, res, next) => {
   res.send(200, req.user);
 }
 
 const confirmEmail = async (req, res, next) => {
-  const user = await models.user.findOne({
+  const token_value = req.query.token;
+  const user = await models.email_confirmation_token.findOne({
     where: {
-      email: b64Decode(req.query.token)
+      token_value
     }
   });
-  if (!user) {
-    res.send(403, { message: 'Error! Your account has already been confirmed' })
+  if (user) {
+    user.token_value = null;
+    await user.save()
   }
-  user.email_confirmation = true;
-  await user.save()
   return res.redirect(`${process.env.FRONTEND_PATH}/login`);
 
 }

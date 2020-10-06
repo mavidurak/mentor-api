@@ -34,10 +34,6 @@ const user = Sequelize.define(
   password_hash: {
     type: DataTypes.STRING,
     allowNull: false,
-  },
-  email_confirmation: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
   }
 }, {
   timestamps: true,
@@ -90,6 +86,23 @@ const initialize = (models) => {
     this.password_salt = salt;
     this.password_hash = hash;
   };
+
+  models.user.prototype.createConfirmationToken = async function () {
+    var token_value = '';
+    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    var charactersLength = characters.length;
+
+    for (var i = 0; i < 10; i++) {
+      token_value += characters.charAt(Math.floor(Math.random() * charactersLength)) + this.username.charAt(Math.floor(Math.random() * this.username.length)) + Math.floor(Math.random() * 99);
+    }
+    const token = await models.email_confirmation_token.create({
+      user_id: this.id,
+      token_value
+    });
+
+    return token;
+  }
+
 };
 
 export default { model: user, initialize };
