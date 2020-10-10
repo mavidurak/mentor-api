@@ -4,13 +4,16 @@ import models from '../../models';
 const create_validation = {
     body: Joi.object({
         title: Joi.string()
+            .min(2)
             .alphanum()
             .max(40)
             .required(),
         key_title: Joi.string()
+            .min(2)
             .max(30)
             .required(),
         description: Joi.string()
+            .min(2)
             .max(30)
             .required(),
     })
