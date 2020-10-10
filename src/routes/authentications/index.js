@@ -21,7 +21,7 @@ const login_validation = {
 const login = async (req, res, next) => {
   const { error, value } = login_validation.body.validate(req.body);
   if (error) {
-    return res.send(400, { error });
+    return res.status(400).send({ error :error.details});
   }
 
   const { username, password } = req.body;
@@ -45,7 +45,7 @@ const login = async (req, res, next) => {
       return res.status(200).send({ token: token.toJSON() });
     }
   }
-  res.send(400, { error: 'User not found!' });
+  res.send(400,{ message: 'User not found!' })
 };
 
 const register_validation = {
