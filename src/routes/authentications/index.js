@@ -38,7 +38,7 @@ const login = async (req, res, next) => {
         }
       })
       if (emailConfirm.token_value != null) {
-        return res.send(403, { message: 'This account not confirmated' })
+        return res.send(403, { message: 'This account has not been confirmed yet.' })
       }
       const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
       const token = await user.createAccessToken(ip_address);
@@ -98,7 +98,7 @@ const register = async (req, res, next) => {
 
   res.send(201, { user: user.toJSON(), token: token.toJSON(), confirmationToken: confirmation_token.toJSON() });
 
-  sendEmail(user, confirmation_token.token_value);
+  await sendEmail(user, confirmation_token.token_value);
 };
 const me = (req, res, next) => {
   res.send(200, req.user);
