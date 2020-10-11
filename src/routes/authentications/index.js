@@ -32,14 +32,17 @@ const login = async (req, res, next) => {
   if (user) {
     const hash = makeSha512(password, user.password_salt);
     if (hash === user.password_hash) {
+
       const emailConfirm = await models.email_confirmation_token.findOne({
         where: {
           user_id: user.id
         }
       })
+
       if (emailConfirm.token_value != null) {
-        return res.send(403, { message: 'This account not confirmated' })
+        return res.send(403, { error: 'This account not confirmated' })
       }
+
       const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
       const token = await user.createAccessToken(ip_address);
       return res.status(200).send({ token: token.toJSON() });
@@ -94,7 +97,7 @@ const register = async (req, res, next) => {
 
   const token = await user.createAccessToken(ip_address);
 
-  const confirmation_token = await user.createConfirmationToken();
+  const confirmation_token = await user.createEmailConfirmationToken();
 
   res.send(201, { user: user.toJSON(), token: token.toJSON(), confirmationToken: confirmation_token.toJSON() });
 

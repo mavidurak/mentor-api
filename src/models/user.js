@@ -87,7 +87,7 @@ const initialize = (models) => {
     this.password_hash = hash;
   };
 
-  models.user.prototype.createConfirmationToken = async function () {
+  models.user.prototype.createEmailConfirmationToken = async function () {
     var token_value = '';
     var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     var charactersLength = characters.length;
