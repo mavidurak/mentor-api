@@ -21,7 +21,7 @@ const login_validation = {
 const login = async (req, res, next) => {
   const { error, value } = login_validation.body.validate(req.body);
   if (error) {
-    return res.send(400, { error });
+    return res.status(400).send({ error :error.details});
   }
 
   const { username, password } = req.body;
@@ -40,7 +40,7 @@ const login = async (req, res, next) => {
       })
 
       if (emailConfirm.token_value != null) {
-        return res.send(403, { error: 'This account not confirmated' })
+        return res.send(403, { message: 'This account has not been confirmed yet.' })
       }
 
       const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -48,7 +48,7 @@ const login = async (req, res, next) => {
       return res.status(200).send({ token: token.toJSON() });
     }
   }
-  res.send(400, { error: 'User not found!' });
+  res.send(400,{ message: 'User not found!' })
 };
 
 const register_validation = {
@@ -101,7 +101,7 @@ const register = async (req, res, next) => {
 
   res.send(201, { user: user.toJSON(), token: token.toJSON(), confirmationToken: confirmation_token.toJSON() });
 
-  sendEmail(user, confirmation_token.token_value);
+  await sendEmail(user, confirmation_token.token_value);
 };
 const me = (req, res, next) => {
   res.send(200, req.user);
