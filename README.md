@@ -1,6 +1,23 @@
 # Mentor API
 
-Example `.env`
+## Install
+```
+git clone https://github.com/mavidurak/mentor-api.git
+cd mentor-api
+```
+## Setup
+```
+npm install
+```
+## Serve
+```
+npm run serve
+```
+## Migration
+```
+npm run migrate
+```
+## Example `.env`
 
 ```
 APP_PORT=4000
