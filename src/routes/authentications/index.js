@@ -21,7 +21,7 @@ const login_validation = {
 const login = async (req, res, next) => {
   const { error, value } = login_validation.body.validate(req.body);
   if (error) {
-    return res.status(400).send({ error :error.details});
+    return res.status(400).send({ error: error.details });
   }
 
   const { username, password } = req.body;
@@ -32,14 +32,7 @@ const login = async (req, res, next) => {
   if (user) {
     const hash = makeSha512(password, user.password_salt);
     if (hash === user.password_hash) {
-
-      const emailConfirm = await models.email_confirmation_token.findOne({
-        where: {
-          user_id: user.id
-        }
-      })
-
-      if (emailConfirm.token_value != null) {
+      if (user.email_confirmation_token !== null) {
         return res.send(403, { message: 'This account has not been confirmed yet.' })
 
       }
@@ -49,7 +42,7 @@ const login = async (req, res, next) => {
       return res.status(200).send({ token: token.toJSON() });
     }
   }
-  res.send(400,{ message: 'User not found!' })
+  res.send(400, { message: 'User not found!' })
 };
 
 const register_validation = {
@@ -96,27 +89,27 @@ const register = async (req, res, next) => {
     password_hash
   })
 
+  await user.createEmailConfirmationToken();
+
   const token = await user.createAccessToken(ip_address);
 
-  const confirmation_token = await user.createEmailConfirmationToken();
+  res.send(201, { user: user.toJSON(), token: token.toJSON() });
 
-  res.send(201, { user: user.toJSON(), token: token.toJSON(), confirmationToken: confirmation_token.toJSON() });
-
-  await sendEmail(user, confirmation_token.token_value);
+  await sendEmail(user);
 };
 const me = (req, res, next) => {
   res.send(200, req.user);
 }
 
 const confirmEmail = async (req, res, next) => {
-  const token_value = req.query.token;
-  const user = await models.email_confirmation_token.findOne({
+  const email_confirmation_token = req.query.token;
+  const user = await models.user.findOne({
     where: {
-      token_value
+      email_confirmation_token
     }
   });
   if (user) {
-    user.token_value = null;
+    user.email_confirmation_token = null;
     await user.save()
   }
   return res.redirect(`${process.env.FRONTEND_PATH}/login`);

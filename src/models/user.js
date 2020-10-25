@@ -34,6 +34,11 @@ const user = Sequelize.define(
   password_hash: {
     type: DataTypes.STRING,
     allowNull: false,
+  },
+  email_confirmation_token: {
+    type: DataTypes.STRING,
+    allowNull: true,
+    defaultValue: null
   }
 }, {
   timestamps: true,
@@ -95,12 +100,9 @@ const initialize = (models) => {
     for (var i = 0; i < 10; i++) {
       token_value += characters.charAt(Math.floor(Math.random() * charactersLength)) + this.username.charAt(Math.floor(Math.random() * this.username.length)) + Math.floor(Math.random() * 99);
     }
-    const token = await models.email_confirmation_token.create({
-      user_id: this.id,
-      token_value
-    });
-
-    return token;
+    this.email_confirmation_token = token_value;
+    this.save();
+    return this.email_confirmation_token;
   }
 
 };
