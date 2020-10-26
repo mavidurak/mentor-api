@@ -121,33 +121,31 @@ const confirmEmail = async (req, res, next) => {
 
 ///Update Methods///
 
-const password_validation = {
-  newPassword: Joi.string()
-    .min(8)
-    .max(30)
-    .required(),
-};
-
-const username_validation = {
-  newUsername: Joi.string()
-    .alphanum()
-    .min(3)
-    .max(30)
-    .required(),
-
+const update_validation = {
+  body: Joi.object({
+    newPassword: Joi.string()
+      .min(8)
+      .max(30),
+    newUsername: Joi.string()
+      .alphanum()
+      .min(3)
+      .max(30),
+    password: Joi.string()
+      .min(3)
+      .max(30),
+  })
 };
 
 const update = async (req, res, next) => {
 
+  const { error, value } = update_validation.body.validate();
+  if (error) {
+    return res.status(400).send({ message: error.details[0].message });
+  }
+
   const { newUsername, password, newPassword } = req.body;
 
   if (newUsername) {
-    console.log('username changing')
-    const { error, value } = username_validation.newUsername.validate(newUsername);
-    if (error) {
-      console.log('hata')
-      return res.status(400).send({ message: 'New Password must be min 3 max 30 character' });
-    }
 
     const user = await models.user.findOne({
       where: { id: req.user.id }
@@ -156,10 +154,8 @@ const update = async (req, res, next) => {
     if (user) {
 
       const hash = makeSha512(password, user.password_salt);
-      console.log(newUsername)
       if (hash === user.password_hash) {
-
-        models.user.update({
+        await models.user.update({
           username: newUsername
         },
           {
@@ -180,52 +176,41 @@ const update = async (req, res, next) => {
     }
   }
   if (newPassword) {
-    console.log('password changing')
     const user = await models.user.findOne({
-      where: {  id: req.user.id}
+      where: { id: req.user.id }
     });
-    
-    
-      const { error, value } = password_validation.newPassword.validate(newPassword);
-        if (error) {
-          console.log('hata')
-          return res.status(400).send( {message: 'New Password must be min 8 max 30 character' });
-        }
-    
-      //----//
-     
-      const {
-        salt: password_salt,
-        hash: password_hash
-      } = createSaltHashPassword(newPassword);
-    
-      console.log(newPassword)
-      console.log(password)
-      if (user) {
-    
-        const hash = makeSha512(password, user.password_salt);
-        
-        if (hash === user.password_hash) {
-          
-          models.user.update({
-            password_hash : password_hash,
-            password_salt: password_salt},
-            {
-              where: {
-                id: user.id
-              }
+
+    const {
+      salt: password_salt,
+      hash: password_hash
+    } = createSaltHashPassword(newPassword);
+
+    if (user) {
+
+      const hash = makeSha512(password, user.password_salt);
+
+      if (hash === user.password_hash) {
+
+        await models.user.update({
+          password_hash: password_hash,
+          password_salt: password_salt
+        },
+          {
+            where: {
+              id: user.id
             }
-          )
-          res.status(200).send({
-            message: `Password updated succesfully`
-          });
-        }
-        else {
-          res.status(401).send({
-            message: 'Password Not Correct!'
-          })
-        }
+          }
+        )
+        res.status(200).send({
+          message: `Password updated succesfully`
+        });
       }
+      else {
+        res.status(401).send({
+          message: 'Password Not Correct!'
+        })
+      }
+    }
   }
 };
 
@@ -236,6 +221,6 @@ export default {
     router.post('/register', register);
     router.post('/login', login);
     router.get('/email-confirmation', confirmEmail);
-    router.patch('/update', update);
+    router.patch('/me', update);
   }
 };
