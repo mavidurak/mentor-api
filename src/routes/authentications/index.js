@@ -138,7 +138,7 @@ const update_validation = {
 
 const update = async (req, res, next) => {
 
-  const { error, value } = update_validation.body.validate();
+  const { error, value } = update_validation.body.validate(req.body);
   if (error) {
     return res.status(400).send({ message: error.details[0].message });
   }
