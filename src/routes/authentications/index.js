@@ -32,9 +32,9 @@ const login = async (req, res, next) => {
   if (user) {
     const hash = makeSha512(password, user.password_salt);
     if (hash === user.password_hash) {
+
       if (user.email_confirmation_token !== null) {
         return res.send(403, { message: 'This account has not been confirmed yet.' })
-
       }
 
       const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -112,7 +112,7 @@ const confirmEmail = async (req, res, next) => {
     user.email_confirmation_token = null;
     await user.save()
   }
-  return res.redirect(`${process.env.FRONTEND_PATH}/login`);
+  return res.redirect(`${process.env.FRONT_END-DASHBOARD_UI}/login`);
 
 }
 

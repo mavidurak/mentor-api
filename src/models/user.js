@@ -66,6 +66,7 @@ const initialize = (models) => {
 
     delete values.password_salt;
     delete values.password_hash;
+    delete values.email_confirmation_token;
 
     return values;
   };
@@ -93,15 +94,16 @@ const initialize = (models) => {
   };
 
   models.user.prototype.createEmailConfirmationToken = async function () {
-    var token_value = '';
-    var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    var charactersLength = characters.length;
+    const key = this.username + this.email + Math.floor(Math.random() * 9999);
+    var key2 = "";
 
-    for (var i = 0; i < 10; i++) {
-      token_value += characters.charAt(Math.floor(Math.random() * charactersLength)) + this.username.charAt(Math.floor(Math.random() * this.username.length)) + Math.floor(Math.random() * 99);
+    for (var i = 0; i < key.length; i++) {
+      key2 += key[i] + Math.floor(Math.random() * 9);
     }
-    this.email_confirmation_token = token_value;
+
+    this.email_confirmation_token = encrypt(key2)
     this.save();
+
     return this.email_confirmation_token;
   }
 
