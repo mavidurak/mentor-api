@@ -17,6 +17,7 @@
   "bugs": {
     "url": "https://github.com/teathedev/mentor-back-end/issues"
   },
+
   "homepage": "https://github.com/teathedev/mentor-back-end#readme",
   "dependencies": {
     "body-parser": "^1.19.0",
@@ -40,5 +41,6 @@
     "sequelize-cli": "^6.2.0"
   }
 }
+
 
 

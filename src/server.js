@@ -17,6 +17,6 @@ app.use(router);
 app.listen(
   process.env.APP_PORT,
   () => {
-    console.log(`Application run at http://localhost:${process.env.APP_PORT}`);
+    console.log(`Application run at http://localhost:${process.env.APP_PORT}, NODE_ENV= ${process.env.NODE_ENV}`);
   }
 );

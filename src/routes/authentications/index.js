@@ -89,14 +89,19 @@ const register = async (req, res, next) => {
     password_hash
   })
 
-  await user.createEmailConfirmationToken();
-
   const token = await user.createAccessToken(ip_address);
+  if (process.env.NODE_ENV === "development" || undefined) {
+    user.email_confirmation_token = null;
+    user.save();
+  }
+  else {
+    await user.createEmailConfirmationToken();
+    await sendEmail(user);
+  }
 
   res.send(201, { user: user.toJSON(), token: token.toJSON() });
-
-  await sendEmail(user);
 };
+
 const me = (req, res, next) => {
   res.send(200, req.user);
 }
@@ -112,7 +117,7 @@ const confirmEmail = async (req, res, next) => {
     user.email_confirmation_token = null;
     await user.save()
   }
-  return res.redirect(`${process.env.FRONT_END-DASHBOARD_UI}/login`);
+  return res.redirect(`${process.env.FRONT_END - DASHBOARD_UI}/login`);
 
 }
 
