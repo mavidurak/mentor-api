@@ -117,7 +117,7 @@ const confirmEmail = async (req, res, next) => {
     user.email_confirmation_token = null;
     await user.save()
   }
-  return res.redirect(`${process.env.FRONT_END - DASHBOARD_UI}/login`);
+  return res.redirect(`${process.env.FRONT_END_DASHBOARD_UI}/login`);
 
 }
 
