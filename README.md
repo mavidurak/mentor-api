@@ -35,3 +35,5 @@ EMAIL_PASSWORD=
 ```
 
 [Send mail with smtp.gmail](https://support.google.com/mail/answer/7126229?visit_id=637363760481005370-2213185597&hl=tr&rd=1).If you use smtp.google, ```EMAIL_SECURE=```is mast be ```true```
+## License
+[GNU General Public License v3.0](LICENSE)
