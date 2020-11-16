@@ -33,7 +33,7 @@ const login = async (req, res, next) => {
     const hash = makeSha512(password, user.password_salt);
     if (hash === user.password_hash) {
 
-      if (user.email_confirmation_token !== null) {
+      if (user.is_email_confirmed !== true) {
         return res.send(403, { message: 'This account has not been confirmed yet.' })
       }
 
@@ -90,13 +90,19 @@ const register = async (req, res, next) => {
   })
 
   const token = await user.createAccessToken(ip_address);
-  if (process.env.NODE_ENV === "development" || undefined) {
-    user.email_confirmation_token = null;
+
+  const emailConfirmationToken = await models.email_confirmation_token.create({
+    user_id: user.id
+  });
+
+  const emailToken = await emailConfirmationToken.createEmailConfirmationToken();
+
+  if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
+    user.is_email_confirmed = true;
     user.save();
   }
   else {
-    await user.createEmailConfirmationToken();
-    await sendEmail(user);
+    await sendEmail(user, emailToken);
   }
 
   res.send(201, { user: user.toJSON(), token: token.toJSON() });
@@ -107,14 +113,19 @@ const me = (req, res, next) => {
 }
 
 const confirmEmail = async (req, res, next) => {
-  const email_confirmation_token = req.query.token;
-  const user = await models.user.findOne({
+  const token_value = req.query.token;
+  const email_confirmation_token = await models.email_confirmation_token.findOne({
     where: {
-      email_confirmation_token
+      token_value
     }
   });
-  if (user) {
-    user.email_confirmation_token = null;
+  if (email_confirmation_token) {
+    const user = await models.user.findOne({
+      where: {
+        id: email_confirmation_token.user_id
+      }
+    })
+    user.is_email_confirmed = true;
     await user.save()
   }
   return res.redirect(`${process.env.FRONT_END_DASHBOARD_UI}/login`);
