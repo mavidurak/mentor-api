@@ -21,7 +21,7 @@ const login_validation = {
 const login = async (req, res, next) => {
   const { error, value } = login_validation.body.validate(req.body);
   if (error) {
-    return res.status(400).send({ error :error.details});
+    return res.status(400).send({ error: error.details });
   }
 
   const { username, password } = req.body;
@@ -45,7 +45,7 @@ const login = async (req, res, next) => {
       return res.status(200).send({ token: token.toJSON() });
     }
   }
-  res.send(400,{ message: 'User not found!' })
+  res.send(400, { message: 'User not found!' })
 };
 
 const register_validation = {
@@ -119,6 +119,101 @@ const confirmEmail = async (req, res, next) => {
 
 }
 
+///Update Methods///
+
+const update_validation = {
+  body: Joi.object({
+    newPassword: Joi.string()
+      .min(8)
+      .max(30),
+    newUsername: Joi.string()
+      .alphanum()
+      .min(3)
+      .max(30),
+    password: Joi.string()
+      .min(3)
+      .max(30),
+  })
+};
+
+const update = async (req, res, next) => {
+
+  const { error, value } = update_validation.body.validate(req.body);
+  if (error) {
+    return res.status(400).send({ message: error.details[0].message });
+  }
+
+  const { newUsername, password, newPassword } = req.body;
+
+  if (newUsername) {
+
+    const user = await models.user.findOne({
+      where: { id: req.user.id }
+    });
+    //----//
+    if (user) {
+
+      const hash = makeSha512(password, user.password_salt);
+      if (hash === user.password_hash) {
+        await models.user.update({
+          username: newUsername
+        },
+          {
+            where: {
+              id: user.id
+            }
+          }
+        )
+        res.status(200).send({
+          message: `Username updated saccesfully`
+        });
+      }
+      else {
+        res.status(401).send({
+          message: 'Password Not Correct!'
+        })
+      }
+    }
+  }
+  if (newPassword) {
+    const user = await models.user.findOne({
+      where: { id: req.user.id }
+    });
+
+    const {
+      salt: password_salt,
+      hash: password_hash
+    } = createSaltHashPassword(newPassword);
+
+    if (user) {
+
+      const hash = makeSha512(password, user.password_salt);
+
+      if (hash === user.password_hash) {
+
+        await models.user.update({
+          password_hash: password_hash,
+          password_salt: password_salt
+        },
+          {
+            where: {
+              id: user.id
+            }
+          }
+        )
+        res.status(200).send({
+          message: `Password updated succesfully`
+        });
+      }
+      else {
+        res.status(401).send({
+          message: 'Password Not Correct!'
+        })
+      }
+    }
+  }
+};
+
 export default {
   prefix: '/authentications',
   inject: (router) => {
@@ -126,5 +221,6 @@ export default {
     router.post('/register', register);
     router.post('/login', login);
     router.get('/email-confirmation', confirmEmail);
+    router.patch('/me', update);
   }
 };
