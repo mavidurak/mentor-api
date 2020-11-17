@@ -91,11 +91,7 @@ const register = async (req, res, next) => {
 
   const token = await user.createAccessToken(ip_address);
 
-  const emailConfirmationToken = await models.email_confirmation_token.create({
-    user_id: user.id
-  });
-
-  const emailToken = await emailConfirmationToken.createEmailConfirmationToken();
+  const emailToken = await user.createEmailConfirmationToken();
 
   if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
     user.is_email_confirmed = true;
@@ -112,7 +108,7 @@ const me = (req, res, next) => {
   res.send(200, req.user);
 }
 
-const confirmEmail = async (req, res, next) => {
+const emailConfirm = async (req, res, next) => {
   const token_value = req.query.token;
   const email_confirmation_token = await models.email_confirmation_token.findOne({
     where: {
@@ -120,15 +116,9 @@ const confirmEmail = async (req, res, next) => {
     }
   });
   if (email_confirmation_token) {
-    const user = await models.user.findOne({
-      where: {
-        id: email_confirmation_token.user_id
-      }
-    })
-    user.is_email_confirmed = true;
-    await user.save()
+    await email_confirmation_token.confirmEmail();
   }
-  return res.redirect(`${process.env.FRONT_END_DASHBOARD_UI}/login`);
+  return res.redirect(`${process.env.DASHBOARD_UI_PATH}/login`);
 
 }
 
@@ -138,6 +128,6 @@ export default {
     router.get('/me', me);
     router.post('/register', register);
     router.post('/login', login);
-    router.get('/email-confirmation', confirmEmail);
+    router.get('/email-confirmation', emailConfirm);
   }
 };

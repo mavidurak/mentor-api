@@ -29,23 +29,18 @@ const initialize = (models) => {
         }
     });
 
-    models.email_confirmation_token.prototype.createEmailConfirmationToken = async function () {
+    models.email_confirmation_token.prototype.confirmEmail = async function () {
         const user = await models.user.findOne({
             where: {
                 id: this.user_id
             }
         })
-
-        const key = user.username + user.email + Math.floor(Math.random() * 9999);
-        var key2 = "";
-
-        for (var i = 0; i < key.length; i++) {
-            key2 += key[i] + Math.floor(Math.random() * 9);
+        if (!user) {
+            return false;
         }
-
-        this.token_value = encrypt(key2)
-        this.save();
-        return this.token_value;
+        user.is_email_confirmed = true;
+        await user.save();
+        return true;
     }
 };
 

@@ -36,8 +36,7 @@ const user = Sequelize.define(
     allowNull: false,
   },
   is_email_confirmed: {
-    type: DataTypes.STRING,
-    allowNull: true,
+    type: DataTypes.BOOLEAN,
     defaultValue: false
   }
 }, {
@@ -60,13 +59,18 @@ const initialize = (models) => {
       sourceKey: "id",
     })
   );
+  models.user.hasMany(models.email_confirmation_token, {
+    as: "user_email_confirmation_token",
+    foreignKey: "user_id",
+    sourceKey: "id",
+  })
+
 
   models.user.prototype.toJSON = function () {
     const values = { ...this.get() };
 
     delete values.password_salt;
     delete values.password_hash;
-    delete values.email_confirmation_token;
 
     return values;
   };
@@ -92,6 +96,23 @@ const initialize = (models) => {
     this.password_salt = salt;
     this.password_hash = hash;
   };
+
+  models.user.prototype.createEmailConfirmationToken = async function () {
+    const key = this.username + this.email + Math.floor(Math.random() * 9999);
+    var key2 = "";
+
+    for (var i = 0; i < key.length; i++) {
+      key2 += key[i] + Math.floor(Math.random() * 9);
+    }
+
+    const token_value = encrypt(key2)
+
+    const emailConfirmationToken = await models.email_confirmation_token.create({
+      token_value,
+      user_id: this.id
+    });
+    return emailConfirmationToken.token_value;
+  }
 
 };
 
