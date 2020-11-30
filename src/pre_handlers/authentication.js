@@ -21,13 +21,16 @@ export default async (req, res, next) => {
     });
 
     if (data) {
+      if (data.user.dataValues.is_email_confirmed) {
+        return next();
+      }
       req.user = data.user.toJSON();
     }
 
   }
 
   if (is_ignored || req.user) { return next(); }
-  
+
   res.send(
     401,
     {
