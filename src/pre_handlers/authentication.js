@@ -20,7 +20,7 @@ export default async (req, res, next) => {
       ]
     });
 
-    if (data || data.is_email_confirmed) {
+    if (data && data.user.is_email_confirmed) {
       req.user = data.user.toJSON();
     }
 
