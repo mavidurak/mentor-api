@@ -20,14 +20,14 @@ export default async (req, res, next) => {
       ]
     });
 
-    if (data) {
+    if (data && data.user.is_email_confirmed) {
       req.user = data.user.toJSON();
     }
 
   }
 
   if (is_ignored || req.user) { return next(); }
-  
+
   res.send(
     401,
     {

@@ -32,14 +32,11 @@ const login = async (req, res, next) => {
   if (user) {
     const hash = makeSha512(password, user.password_salt);
     if (hash === user.password_hash) {
-      const emailConfirm = await models.email_confirmation_token.findOne({
-        where: {
-          user_id: user.id
-        }
-      })
-      if (emailConfirm.token_value != null) {
+
+      if (user.is_email_confirmed !== true) {
         return res.send(403, { message: 'This account has not been confirmed yet.' })
       }
+
       const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
       const token = await user.createAccessToken(ip_address);
       return res.status(200).send({ token: token.toJSON() });
@@ -94,28 +91,34 @@ const register = async (req, res, next) => {
 
   const token = await user.createAccessToken(ip_address);
 
-  const confirmation_token = await user.createConfirmationToken();
+  const emailToken = await user.createEmailConfirmationToken();
 
-  res.send(201, { user: user.toJSON(), token: token.toJSON(), confirmationToken: confirmation_token.toJSON() });
+  if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
+    user.is_email_confirmed = true;
+    user.save();
+  }
+  else {
+    await sendEmail(user, emailToken);
+  }
 
-  await sendEmail(user, confirmation_token.token_value);
+  res.send(201, { user: user.toJSON(), token: token.toJSON() });
 };
+
 const me = (req, res, next) => {
   res.send(200, req.user);
 }
 
-const confirmEmail = async (req, res, next) => {
+const emailConfirm = async (req, res, next) => {
   const token_value = req.query.token;
-  const user = await models.email_confirmation_token.findOne({
+  const email_confirmation_token = await models.email_confirmation_token.findOne({
     where: {
       token_value
     }
   });
-  if (user) {
-    user.token_value = null;
-    await user.save()
+  if (email_confirmation_token) {
+    await email_confirmation_token.confirmEmail();
   }
-  return res.redirect(`${process.env.FRONTEND_PATH}/login`);
+  return res.redirect(`${process.env.DASHBOARD_UI_PATH}/login`);
 
 }
 
@@ -220,7 +223,7 @@ export default {
     router.get('/me', me);
     router.post('/register', register);
     router.post('/login', login);
-    router.get('/email-confirmation', confirmEmail);
+    router.get('/email-confirmation', emailConfirm);
     router.patch('/me', update);
   }
 };

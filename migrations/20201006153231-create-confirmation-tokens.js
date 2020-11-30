@@ -34,11 +34,12 @@ module.exports = {
               references: {
                 model: 'users',
                 key: 'id'
-              }
+              },
+              onUpdate: 'cascade',
+              onDelete: 'cascade'
             }
           }
         ),
-        queryInterface.removeColumn('users', 'email_confirmation')
       ]);
     });
   },
@@ -47,10 +48,6 @@ module.exports = {
     return queryInterface.sequelize.transaction(t => {
       return Promise.all([
         queryInterface.dropTable('email_confirmation_tokens'),
-        queryInterface.addColumn('users', 'email_confirmation', {
-          type: Sequelize.BOOLEAN,
-          defaultValue: false
-        }),
       ]);
     });
   }
