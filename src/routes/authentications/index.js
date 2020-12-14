@@ -1,9 +1,10 @@
 import Joi from 'joi';
 import { Op } from 'sequelize';
-import { sendEmail } from '../../utils/sendEmail'
+import { sendEmail } from '../../utils/sendEmail';
 import models from '../../models';
-import { makeSha512, createSaltHashPassword, encrypt, b64Encode, b64Decode } from '../../utils/encryption';
-
+import {
+  makeSha512, createSaltHashPassword, encrypt, b64Encode, b64Decode,
+} from '../../utils/encryption';
 
 const login_validation = {
   body: Joi.object({
@@ -15,8 +16,8 @@ const login_validation = {
     password: Joi.string()
       .min(8)
       .max(30)
-      .required()
-  })
+      .required(),
+  }),
 };
 const login = async (req, res, next) => {
   const { error, value } = login_validation.body.validate(req.body);
@@ -26,15 +27,14 @@ const login = async (req, res, next) => {
 
   const { username, password } = req.body;
   const user = await models.user.findOne({
-    where: { [Op.or]: { username: username.trim(), email: username.trim() } }
+    where: { [Op.or]: { username: username.trim(), email: username.trim() } },
   });
 
   if (user) {
     const hash = makeSha512(password, user.password_salt);
     if (hash === user.password_hash) {
-
       if (user.is_email_confirmed !== true) {
-        return res.send(403, { message: 'This account has not been confirmed yet.' })
+        return res.send(403, { message: 'This account has not been confirmed yet.' });
       }
 
       const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
@@ -42,7 +42,7 @@ const login = async (req, res, next) => {
       return res.status(200).send({ token: token.toJSON() });
     }
   }
-  res.send(400, { message: 'User not found!' })
+  res.send(400, { message: 'User not found!' });
 };
 
 const register_validation = {
@@ -58,8 +58,8 @@ const register_validation = {
       .required(),
     email: Joi.string()
       .email({ minDomainSegments: 2 }),
-    name: Joi.string().min(3).max(30).required()
-  })
+    name: Joi.string().min(3).max(30).required(),
+  }),
 };
 const register = async (req, res, next) => {
   const { error, value } = register_validation.body.validate(req.body);
@@ -67,9 +67,11 @@ const register = async (req, res, next) => {
     return res.send(400, { error });
   }
 
-  const { username, password, email, name } = req.body;
+  const {
+    username, password, email, name,
+  } = req.body;
   let user = await models.user.findOne({
-    where: { [Op.or]: { username: username.trim(), email: email.trim() } }
+    where: { [Op.or]: { username: username.trim(), email: email.trim() } },
   });
 
   if (user) {
@@ -78,7 +80,7 @@ const register = async (req, res, next) => {
 
   const {
     salt: password_salt,
-    hash: password_hash
+    hash: password_hash,
   } = createSaltHashPassword(password);
   const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   user = await models.user.create({
@@ -86,18 +88,17 @@ const register = async (req, res, next) => {
     email,
     name,
     password_salt,
-    password_hash
-  })
+    password_hash,
+  });
 
   const token = await user.createAccessToken(ip_address);
 
   const emailToken = await user.createEmailConfirmationToken();
 
-  if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
+  if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development') {
     user.is_email_confirmed = true;
     user.save();
-  }
-  else {
+  } else {
     await sendEmail(user, emailToken);
   }
 
@@ -106,23 +107,22 @@ const register = async (req, res, next) => {
 
 const me = (req, res, next) => {
   res.send(200, req.user);
-}
+};
 
 const emailConfirm = async (req, res, next) => {
   const token_value = req.query.token;
   const email_confirmation_token = await models.email_confirmation_token.findOne({
     where: {
-      token_value
-    }
+      token_value,
+    },
   });
   if (email_confirmation_token) {
     await email_confirmation_token.confirmEmail();
   }
   return res.redirect(`${process.env.DASHBOARD_UI_PATH}/login`);
+};
 
-}
-
-///Update Methods///
+/// Update Methods///
 
 const update_validation = {
   body: Joi.object({
@@ -136,11 +136,10 @@ const update_validation = {
     password: Joi.string()
       .min(3)
       .max(30),
-  })
+  }),
 };
 
 const update = async (req, res, next) => {
-
   const { error, value } = update_validation.body.validate(req.body);
   if (error) {
     return res.status(400).send({ message: error.details[0].message });
@@ -149,69 +148,61 @@ const update = async (req, res, next) => {
   const { newUsername, password, newPassword } = req.body;
 
   if (newUsername) {
-
     const user = await models.user.findOne({
-      where: { id: req.user.id }
+      where: { id: req.user.id },
     });
-    //----//
+    // ----//
     if (user) {
-
       const hash = makeSha512(password, user.password_salt);
       if (hash === user.password_hash) {
         await models.user.update({
-          username: newUsername
+          username: newUsername,
         },
-          {
-            where: {
-              id: user.id
-            }
-          }
-        )
-        res.status(200).send({
-          message: `Username updated saccesfully`
+        {
+          where: {
+            id: user.id,
+          },
         });
-      }
-      else {
+        res.status(200).send({
+          message: 'Username updated saccesfully',
+        });
+      } else {
         res.status(401).send({
-          message: 'Password Not Correct!'
-        })
+          message: 'Password Not Correct!',
+        });
       }
     }
   }
   if (newPassword) {
     const user = await models.user.findOne({
-      where: { id: req.user.id }
+      where: { id: req.user.id },
     });
 
     const {
       salt: password_salt,
-      hash: password_hash
+      hash: password_hash,
     } = createSaltHashPassword(newPassword);
 
     if (user) {
-
       const hash = makeSha512(password, user.password_salt);
 
       if (hash === user.password_hash) {
-
         await models.user.update({
-          password_hash: password_hash,
-          password_salt: password_salt
+          password_hash,
+          password_salt,
         },
-          {
-            where: {
-              id: user.id
-            }
-          }
-        )
-        res.status(200).send({
-          message: `Password updated succesfully`
+        {
+          where: {
+            id: user.id,
+          },
         });
-      }
-      else {
+        res.status(200).send({
+          message: 'Password updated succesfully',
+        });
+      } else {
         res.status(401).send({
-          message: 'Password Not Correct!'
-        })
+          message: 'Password Not Correct!',
+        });
       }
     }
   }
@@ -225,5 +216,5 @@ export default {
     router.post('/login', login);
     router.get('/email-confirmation', emailConfirm);
     router.patch('/me', update);
-  }
+  },
 };

@@ -2,7 +2,6 @@ import express from 'express';
 
 import routes from './routes';
 
-
 const router = express.Router();
 
 routes.forEach((route) => {
@@ -11,6 +10,5 @@ routes.forEach((route) => {
   route.inject(subRouter);
   router.use(prefix, subRouter);
 });
-
 
 export default router;

@@ -2,20 +2,19 @@ import { DataTypes } from 'sequelize';
 
 import Sequelize from '../sequelize';
 
-
 const datas = Sequelize.define(
   'datas',
   {
-    
+
     value: {
       type: DataTypes.DOUBLE,
     },
-    
+
   },
   {
     timestamps: true,
-    underscored: true
-  }
+    underscored: true,
+  },
 );
 
 const initialize = (models) => {
@@ -23,11 +22,9 @@ const initialize = (models) => {
     as: 'data_sets',
     foreignKey: {
       name: 'dataset_id',
-      allowNull: false
-    }
+      allowNull: false,
+    },
   });
 };
 
-
 export default { model: datas, initialize };
-

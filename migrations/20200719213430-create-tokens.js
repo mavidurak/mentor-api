@@ -1,8 +1,5 @@
-'use strict';
-
-
 module.exports = {
-  up: function(queryInterface, Sequelize) {
+  up(queryInterface, Sequelize) {
     return queryInterface.createTable(
       'tokens',
       {
@@ -10,42 +7,42 @@ module.exports = {
           allowNull: false,
           autoIncrement: true,
           primaryKey: true,
-          type: Sequelize.INTEGER
+          type: Sequelize.INTEGER,
         },
         token_value: {
           type: Sequelize.STRING,
-          allowNull: false
+          allowNull: false,
         },
         ip_address: {
           type: Sequelize.STRING,
-          allowNull: false
+          allowNull: false,
         },
         created_at: {
           allowNull: false,
-          type: Sequelize.DATE
+          type: Sequelize.DATE,
         },
         updated_at: {
           allowNull: false,
-          type: Sequelize.DATE
+          type: Sequelize.DATE,
         },
         expired_at: {
           allowNull: false,
-          type: Sequelize.DATE
+          type: Sequelize.DATE,
         },
         user_id: {
           type: Sequelize.INTEGER,
           allowNull: false,
           references: {
             model: 'users',
-            key: 'id'
+            key: 'id',
           },
           onUpdate: 'cascade',
-          onDelete: 'cascade'
-        }
-      }
+          onDelete: 'cascade',
+        },
+      },
     );
   },
-  down: function(queryInterface, Sequelize) {
+  down(queryInterface, Sequelize) {
     return queryInterface.dropTable('tokens');
-  }
+  },
 };
