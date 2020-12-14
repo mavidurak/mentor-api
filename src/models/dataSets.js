@@ -9,7 +9,7 @@ const data_sets = Sequelize.define(
       type: DataTypes.STRING,
       allowNull: false
     },
-    key_title: {
+    data_type: {
       type: DataTypes.STRING,
       allowNull: false
     },
