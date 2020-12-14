@@ -8,7 +8,7 @@ const create_validation = {
       .alphanum()
       .max(40)
       .required(),
-    key_title: Joi.string()
+    data_type: Joi.string()
       .min(2)
       .max(30)
       .required(),
@@ -26,12 +26,12 @@ const create = async (req, res, next) => {
     return res.send(400, { error });
   }
 
-  const { title, key_title, description } = req.body;
+  const { title, data_type, description } = req.body;
   let dataSet = await models.data_sets.findOne({
     where: {
       user_id,
       title,
-      key_title,
+      data_type,
       description
     }
   });
@@ -39,7 +39,7 @@ const create = async (req, res, next) => {
   dataSet = await models.data_sets.create({
     user_id,
     title,
-    key_title,
+    data_type,
     description
   });
 
