@@ -1,4 +1,3 @@
-'use strict';
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     await queryInterface.createTable('datas', {
@@ -6,31 +5,31 @@ module.exports = {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       dataset_id: {
         type: Sequelize.INTEGER,
         references: {
           model: 'data_sets',
-          key: 'id'
+          key: 'id',
         },
       },
       value: {
-        type: Sequelize.DOUBLE
+        type: Sequelize.DOUBLE,
       },
       created_at: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updated_at: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       deleted_at: {
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('datas');
-  }
+  },
 };

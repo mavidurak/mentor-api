@@ -1,12 +1,12 @@
-import nodemailer from 'nodemailer'
+import nodemailer from 'nodemailer';
 import { b64Encode } from './encryption';
 
 export const sendEmail = async (user, token) => {
   const href = `${process.env.API_PATH}/authentications/email-confirmation?token=${token}`;
 
-  const buttonText = `Confirm`;
+  const buttonText = 'Confirm';
 
-  const subject = `Welcome to MaviDurak-IO`;
+  const subject = 'Welcome to MaviDurak-IO';
 
   const header = `Hi <strong><em>${user.name}</em></strong>, time to get started ⏳`;
 
@@ -230,9 +230,9 @@ export const sendEmail = async (user, token) => {
         </table>
       </body>
     </html>
-  `
+  `;
 
-  let transporter = nodemailer.createTransport({
+  const transporter = nodemailer.createTransport({
     host: process.env.EMAIL_HOST,
     port: process.env.EMAIL_PORT,
     secure: process.env.EMAIL_SECURE, // true for 465, false for other ports
@@ -243,17 +243,16 @@ export const sendEmail = async (user, token) => {
   });
 
   // send mail with defined transport object
-  let info = await transporter.sendMail({
+  const info = await transporter.sendMail({
     from: `${process.env.EMAIL_USER}`,
     to: `${user.email}`,
-    subject: subject,
+    subject,
     html: htmlCode,
   });
 
   console.log(`\n++++++++++++++++| ${buttonText} Message sent to ${user.email} - ${info.messageId} |++++++++++++++++\n`);
-
 };
 
 export default {
-  sendEmail
+  sendEmail,
 };

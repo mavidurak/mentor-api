@@ -1,7 +1,7 @@
 export const WHITE_LIST = [
   '/authentications/login/',
   '/authentications/email-confirmation/',
-  '/authentications/register/'
+  '/authentications/register/',
 ];
 
 export const TOKEN_KEY = 'X-AccessToken';
