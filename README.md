@@ -17,6 +17,10 @@ npm run serve
 ```
 npm run migrate
 ```
+## Eslint Fix
+```
+npm run lint -- --fix
+```
 ## Example `.env`
 
 ```
