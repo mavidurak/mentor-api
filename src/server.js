@@ -2,7 +2,7 @@ import 'dotenv/config';
 import express from 'express';
 import body_parser from 'body-parser';
 import cors from 'cors';
-import router from './router.js';
+import router from './router';
 import pre_handlers from './pre_handlers';
 
 const app = express();

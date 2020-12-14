@@ -1,4 +1,5 @@
 module.exports = {
+
   up(queryInterface, Sequelize) {
     return queryInterface.renameColumn('data_sets', 'key_title', 'data_type');
   },
