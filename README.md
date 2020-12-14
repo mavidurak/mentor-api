@@ -17,7 +17,7 @@ npm run serve
 ```
 npm run migrate
 ```
-## Eslint Fix
+## ESlint Fix
 ```
 npm run lint -- --fix
 ```
