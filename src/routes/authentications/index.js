@@ -44,7 +44,34 @@ const login = async (req, res, next) => {
   }
   res.send(400, { message: 'User not found!' })
 };
+const reSendConfirmEmail = async (req, res, next) => {
+  const { error, value } = login_validation.body.validate(req.body);
+  if (error) {
+    return res.status(400).send({ error: error.details });
+  }
 
+  const { username, password } = req.body;
+  const user = await models.user.findOne({
+    where: { [Op.or]: { username: username.trim(), email: username.trim() } }
+  });
+
+  if (user) {
+    const hash = makeSha512(password, user.password_salt);
+    if (hash === user.password_hash) {
+
+      if (user.is_email_confirmed !== true) {
+        const emailToken = await user.createEmailConfirmationToken();
+        await sendEmail(user, emailToken);
+        return res.send(200, { message: 'Confirmation email sent.' })
+      }
+
+      const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+      const token = await user.createAccessToken(ip_address);
+      return res.status(200).send({ token: token.toJSON() });
+    }
+  }
+  res.send(400, { message: 'User not found!' })
+};
 const register_validation = {
   body: Joi.object({
     username: Joi.string()
@@ -92,7 +119,7 @@ const register = async (req, res, next) => {
   const token = await user.createAccessToken(ip_address);
 
   const emailToken = await user.createEmailConfirmationToken();
-
+  
   if (!process.env.NODE_ENV || process.env.NODE_ENV === "development") {
     user.is_email_confirmed = true;
     user.save();
@@ -223,6 +250,7 @@ export default {
     router.get('/me', me);
     router.post('/register', register);
     router.post('/login', login);
+    router.post('/resend-emailconfirm',reSendConfirmEmail)
     router.get('/email-confirmation', emailConfirm);
     router.patch('/me', update);
   }
