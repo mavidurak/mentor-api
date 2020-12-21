@@ -9,20 +9,20 @@ module.exports = {
     password,
     database,
     host,
-    dialect: 'mysql'
+    dialect: 'mysql',
   },
   test: {
     username,
     password,
     database,
     host,
-    dialect: 'mysql'
+    dialect: 'mysql',
   },
   production: {
     username,
     password,
     database,
     host,
-    dialect: 'mysql'
-  }
+    dialect: 'mysql',
+  },
 };

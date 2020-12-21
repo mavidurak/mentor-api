@@ -2,27 +2,26 @@ import { DataTypes } from 'sequelize';
 
 import Sequelize from '../sequelize';
 
-
 const token = Sequelize.define(
   'token',
   {
     token_value: {
       type: DataTypes.STRING,
       allowNull: false,
-      unique: true
+      unique: true,
     },
     ip_address: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
     expired_at: {
-      type: DataTypes.DATE
-    }
+      type: DataTypes.DATE,
+    },
   },
   {
     timestamps: true,
-    underscored: true
-  }
+    underscored: true,
+  },
 );
 
 const initialize = (models) => {
@@ -30,11 +29,9 @@ const initialize = (models) => {
     as: 'user',
     foreignKey: {
       name: 'user_id',
-      allowNull: false
-    }
+      allowNull: false,
+    },
   });
 };
 
-
 export default { model: token, initialize };
-

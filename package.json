@@ -6,7 +6,8 @@
   "scripts": {
     "serve": "nodemon start",
     "debug": "nodemon --inspect src/server --exec babel-node",
-    "migrate": "./node_modules/.bin/sequelize db:migrate"
+    "migrate": "./node_modules/.bin/sequelize db:migrate",
+    "lint": "eslint ."
   },
   "repository": {
     "type": "git",
@@ -17,7 +18,6 @@
   "bugs": {
     "url": "https://github.com/teathedev/mentor-back-end/issues"
   },
-
   "homepage": "https://github.com/teathedev/mentor-back-end#readme",
   "dependencies": {
     "body-parser": "^1.19.0",
@@ -37,10 +37,10 @@
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1",
+    "eslint": "^7.15.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.22.1",
     "nodemon": "^2.0.4",
     "sequelize-cli": "^6.2.0"
   }
 }
-
-
-

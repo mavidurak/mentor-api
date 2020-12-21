@@ -1,7 +1,5 @@
-'use strict';
-
 module.exports = {
-  up: function(queryInterface, Sequelize) {
+  up(queryInterface, Sequelize) {
     return queryInterface.createTable(
       'data_sets',
       {
@@ -9,45 +7,45 @@ module.exports = {
           allowNull: false,
           autoIncrement: true,
           primaryKey: true,
-          type: Sequelize.INTEGER
+          type: Sequelize.INTEGER,
         },
         user_id: {
           type: Sequelize.INTEGER,
           allowNull: false,
           references: {
             model: 'users',
-            key: 'id'
+            key: 'id',
           },
           onUpdate: 'cascade',
-          onDelete: 'cascade'
+          onDelete: 'cascade',
         },
         title: {
           type: Sequelize.STRING,
-          allowNull: false
+          allowNull: false,
         },
         key_title: {
           type: Sequelize.STRING,
-          allowNull: false
+          allowNull: false,
         },
         description: {
           type: Sequelize.STRING,
-          allowNull: true
+          allowNull: true,
         },
         created_at: {
           allowNull: false,
-          type: Sequelize.DATE
+          type: Sequelize.DATE,
         },
         updated_at: {
           allowNull: false,
-          type: Sequelize.DATE
+          type: Sequelize.DATE,
         },
         deleted_at: {
-          type: Sequelize.DATE
-        }
-      }
+          type: Sequelize.DATE,
+        },
+      },
     );
   },
-  down: function(queryInterface, Sequelize) {
+  down(queryInterface, Sequelize) {
     return queryInterface.dropTable('data_sets');
-  }
+  },
 };
