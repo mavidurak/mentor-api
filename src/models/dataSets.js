@@ -7,31 +7,31 @@ const data_sets = Sequelize.define(
   {
     title: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
-    key_title: {
+    data_type: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: false,
     },
     description: {
       type: DataTypes.STRING,
-      allowNull: true
-    }
+      allowNull: true,
+    },
   },
   {
     timestamps: true,
     paranoid: true,
-    underscored: true
-  }
-)
+    underscored: true,
+  },
+);
 
 const initialize = (models) => {
   models.data_sets.belongsTo(models.user, {
     as: 'user',
     foreignKey: {
       name: 'user_id',
-      allowNull: false
-    }
+      allowNull: false,
+    },
   });
 };
 

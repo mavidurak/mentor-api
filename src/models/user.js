@@ -1,8 +1,8 @@
-import util from "util";
+import util from 'util';
 
-import { DataTypes, DATE } from "sequelize";
+import { DataTypes, DATE } from 'sequelize';
 
-import Sequelize from "../sequelize";
+import Sequelize from '../sequelize';
 
 import {
   intToBase36,
@@ -10,61 +10,60 @@ import {
   b64Encode,
   encrypt,
   createSaltHashPassword,
-} from "../utils/encryption";
+} from '../utils/encryption';
 
 const user = Sequelize.define(
-  "user", {
-  username: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
+  'user', {
+    username: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    email: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+    },
+    password_salt: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    password_hash: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    is_email_confirmed: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+  }, {
+    timestamps: true,
+    paranoid: true,
+    underscored: true,
   },
-  email: {
-    type: DataTypes.STRING,
-    allowNull: false,
-    unique: true,
-  },
-  name: {
-    type: DataTypes.STRING,
-  },
-  password_salt: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  password_hash: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  is_email_confirmed: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: false
-  }
-}, {
-  timestamps: true,
-  paranoid: true,
-  underscored: true,
-}
 );
 
 const initialize = (models) => {
   models.user.hasMany(
     models.token, {
-    as: "user_tokens",
-    foreignKey: "user_id",
-    sourceKey: "id",
-  },
+      as: 'user_tokens',
+      foreignKey: 'user_id',
+      sourceKey: 'id',
+    },
     models.user.hasMany(models.data_sets, {
-      as: "user_data_sets",
-      foreignKey: "user_id",
-      sourceKey: "id",
-    })
+      as: 'user_data_sets',
+      foreignKey: 'user_id',
+      sourceKey: 'id',
+    }),
   );
   models.user.hasMany(models.email_confirmation_token, {
-    as: "user_email_confirmation_token",
-    foreignKey: "user_id",
-    sourceKey: "id",
-  })
-
+    as: 'user_email_confirmation_token',
+    foreignKey: 'user_id',
+    sourceKey: 'id',
+  });
 
   models.user.prototype.toJSON = function () {
     const values = { ...this.get() };
@@ -99,21 +98,20 @@ const initialize = (models) => {
 
   models.user.prototype.createEmailConfirmationToken = async function () {
     const key = this.username + this.email + Math.floor(Math.random() * 9999);
-    var key2 = "";
+    let key2 = '';
 
-    for (var i = 0; i < key.length; i++) {
+    for (let i = 0; i < key.length; i++) {
       key2 += key[i] + Math.floor(Math.random() * 9);
     }
 
-    const token_value = encrypt(key2)
+    const token_value = encrypt(key2);
 
     const emailConfirmationToken = await models.email_confirmation_token.create({
       token_value,
-      user_id: this.id
+      user_id: this.id,
     });
     return emailConfirmationToken.token_value;
-  }
-
+  };
 };
 
 export default { model: user, initialize };

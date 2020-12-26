@@ -8,20 +8,20 @@ export const encrypt = (data, cryptType = 'sha256', secret = SECRET_KEY, encodin
     .digest(encoding)
 );
 
-export const intToBase36 = timestamp => timestamp.toString(36);
+export const intToBase36 = (timestamp) => timestamp.toString(36);
 
-export const base36ToInt = timestamp => parseInt(timestamp, 36);
+export const base36ToInt = (timestamp) => parseInt(timestamp, 36);
 
-export const b64Encode = value => Buffer.from((value).toString()).toString('base64');
+export const b64Encode = (value) => Buffer.from((value).toString()).toString('base64');
 
-export const b64Decode = b64value => Buffer.from(b64value, 'base64').toString();
+export const b64Decode = (b64value) => Buffer.from(b64value, 'base64').toString();
 
 export const makeSha512 = (password, salt) => {
   const hash = crypto.createHmac('sha512', salt); /** Hashing algorithm sha512 */
   hash.update(password);
 
   return hash.digest('hex');
-}
+};
 
 export const createSaltHashPassword = (password) => {
   const salt = makeSalt(12);
@@ -29,7 +29,7 @@ export const createSaltHashPassword = (password) => {
 
   return {
     salt,
-    hash
+    hash,
   };
 };
 
@@ -38,5 +38,5 @@ export default {
   intToBase36,
   base36ToInt,
   b64Encode,
-  b64Decode
+  b64Decode,
 };

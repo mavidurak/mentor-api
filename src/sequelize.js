@@ -7,14 +7,13 @@ const connection = new Sequelize(
   db_config.password,
   {
     host: db_config.host,
-    dialect: db_config.dialect
-  }
+    dialect: db_config.dialect,
+  },
 );
 
 connection.authenticate()
   .then(() => {
     console.log('MYSQL Connection done');
-  }).catch(error => console.log(error));
-
+  }).catch((error) => console.log(error));
 
 export default connection;
