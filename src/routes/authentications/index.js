@@ -64,10 +64,7 @@ const reSendConfirmEmail = async (req, res, next) => {
         await sendEmail(user, emailToken);
         return res.send(200, { message: 'Confirmation email sent.' })
       }
-
-      const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-      const token = await user.createAccessToken(ip_address);
-      return res.status(200).send({ token: token.toJSON() });
+      return res.send(400, { message: 'User email already confirmed!' });
     }
   }
   res.send(400, { message: 'User not found!' })
