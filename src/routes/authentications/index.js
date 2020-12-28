@@ -1,6 +1,6 @@
 import Joi from 'joi';
 import { Op } from 'sequelize';
-import { sendEmail } from '../../utils/sendEmail';
+import { sendEmail, EmailTypes } from '../../utils/sendEmail';
 import models from '../../models';
 import {
   makeSha512, createSaltHashPassword, encrypt, b64Encode, b64Decode,
