@@ -44,8 +44,6 @@ module.exports = {
           table: 'data_sets',
           field: 'id',
         },
-        onDelete: 'CASCADE',
-        onUpdate: 'CASCADE',
         transaction
       });
       return transaction.commit();
