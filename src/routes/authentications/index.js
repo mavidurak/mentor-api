@@ -238,7 +238,7 @@ export default {
     router.get('/me', me);
     router.post('/register', register);
     router.post('/login', login);
-    router.post('/resend-emailconfirm',reSendConfirmEmail)
+    router.post('/resend-confirm-email',reSendConfirmEmail)
     router.get('/email-confirmation', emailConfirm);
     router.patch('/me', update);
   },
