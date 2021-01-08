@@ -52,17 +52,20 @@ const initialize = (models) => {
       as: 'user_tokens',
       foreignKey: 'user_id',
       sourceKey: 'id',
-    },
-    models.user.hasMany(models.data_sets, {
+  });
+  
+  models.user.hasMany(
+    models.data_sets, {
       as: 'user_data_sets',
       foreignKey: 'user_id',
       sourceKey: 'id',
-    }),
-  );
-  models.user.hasMany(models.email_confirmation_token, {
-    as: 'user_email_confirmation_token',
-    foreignKey: 'user_id',
-    sourceKey: 'id',
+  });
+  
+  models.user.hasMany(
+    models.email_confirmation_token, {
+      as: 'user_email_confirmation_token',
+      foreignKey: 'user_id',
+      sourceKey: 'id',
   });
 
   models.user.prototype.toJSON = function () {
