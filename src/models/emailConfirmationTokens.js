@@ -12,6 +12,10 @@ const email_confirmation_token = Sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
+    token_status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
   },
   {
     timestamps: true,
@@ -37,8 +41,11 @@ const initialize = (models) => {
     if (!user) {
       return false;
     }
+    
     user.is_email_confirmed = true;
+    this.token_status='CONFIRMED';
     await user.save();
+    await email_confirmation_token.save();
     return true;
   };
 };

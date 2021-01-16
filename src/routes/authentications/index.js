@@ -146,7 +146,7 @@ const emailConfirm = async (req, res, next) => {
   return res.redirect(`${process.env.DASHBOARD_UI_PATH}/login`);
 };
 
-/// Update Methods///
+/// Update Methods ///
 
 const update_validation = {
   body: Joi.object({

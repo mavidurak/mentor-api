@@ -102,15 +102,27 @@ const initialize = (models) => {
   models.user.prototype.createEmailConfirmationToken = async function () {
     const key = this.username + this.email + Math.floor(Math.random() * 9999);
     let key2 = '';
-
+    const status='PENDING';
+    
     for (let i = 0; i < key.length; i++) {
       key2 += key[i] + Math.floor(Math.random() * 9);
     }
+    
+    const user_email_confirmation_token = await models.email_confirmation_token.findOne({
+      where: {
+        user_id: this.user_id,
+      },
+    });
+    if ( user_email_confirmation_token.token_status === 'PENDING') {
+      status='CANCELLED';
+    }
 
     const token_value = encrypt(key2);
+    
 
     const emailConfirmationToken = await models.email_confirmation_token.create({
       token_value,
+      token_status:status,
       user_id: this.id,
     });
     return emailConfirmationToken.token_value;
