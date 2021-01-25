@@ -22,7 +22,7 @@ const login_validation = {
 const login = async (req, res, next) => {
   const { error, value } = login_validation.body.validate(req.body);
   if (error) {
-    return res.status(400).send({ error: error.details });
+    return res.status(400).send({ errors: error.details });
   }
 
   const { username, password } = req.body;
@@ -35,11 +35,12 @@ const login = async (req, res, next) => {
     if (hash === user.password_hash) {
       if (user.is_email_confirmed !== true) {
         return res.send(403, {
-          error: {
-            details:
-            {
-              message: 'This account has not been confirmed yet.'
-            }
+          errors: {
+            details: [
+              {
+                message: 'This account has not been confirmed yet.'
+              }
+            ]
           }
         });
       }
@@ -50,18 +51,19 @@ const login = async (req, res, next) => {
     }
   }
   res.send(400, {
-    error: {
-      details:
-      {
-        message: 'User not found!'
-      }
+    errors: {
+      details: [
+        {
+          message: 'User not found!'
+        }
+      ]
     }
   });
 };
 const reSendConfirmEmail = async (req, res, next) => {
   const { error, value } = login_validation.body.validate(req.body);
   if (error) {
-    return res.status(400).send({ error: error.details });
+    return res.status(400).send({ errors: error.details });
   }
 
   const { username, password } = req.body;
@@ -79,21 +81,23 @@ const reSendConfirmEmail = async (req, res, next) => {
         return res.send(200, { message: 'Confirmation email sent.' })
       }
       return res.send(400, {
-        error: {
-          details:
-          {
-            message: 'User email already confirmed!'
-          }
+        errors: {
+          details: [
+            {
+              message: 'User email already confirmed!'
+            }
+          ]
         }
       });
     }
   }
   res.send(400, {
-    error: {
-      details:
-      {
-        message: 'User not found!'
-      }
+    errors: {
+      details: [
+        {
+          message: 'User not found!'
+        }
+      ]
     }
   })
 };
@@ -128,11 +132,12 @@ const register = async (req, res, next) => {
 
   if (user) {
     return res.send(400, {
-      error: {
-        details:
-        {
-          message: 'E-mail address or username is used!'
-        }
+      errors: {
+        details: [
+          {
+            message: 'E-mail address or username is used!'
+          }
+        ]
       }
     });
   }
@@ -201,7 +206,7 @@ const update_validation = {
 const update = async (req, res, next) => {
   const { error, value } = update_validation.body.validate(req.body);
   if (error) {
-    return res.status(400).send( error );
+    return res.status(400).send(error);
   }
 
   const { newUsername, password, newPassword } = req.body;
@@ -227,11 +232,12 @@ const update = async (req, res, next) => {
         });
       } else {
         res.status(401).send({
-          error: {
-            details:
-            {
-              message: 'Password Not Correct!'
-            }
+          errors: {
+            details: [
+              {
+                message: 'Password Not Correct!'
+              }
+            ]
           }
         });
       }
@@ -265,11 +271,12 @@ const update = async (req, res, next) => {
         });
       } else {
         res.status(401).send({
-          error: {
-            details:
-            {
-              message: 'Password Not Correct!'
-            }
+          errors: {
+            details: [
+              {
+                message: 'Password Not Correct!'
+              }
+            ]
           }
         });
       }
