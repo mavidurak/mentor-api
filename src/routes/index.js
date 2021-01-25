@@ -1,12 +1,14 @@
 import authentications from './authentications';
-import application from './applications'
+import applications from './applications'
 import dataSets from './dataSets';
 import datas from './datas';
 
 
+// modelleri isimleri çoğul 
+
 export default [
   authentications,
-  application,
+  applications,
   dataSets,
   datas,
 ];

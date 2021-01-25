@@ -2,8 +2,9 @@ import { DataTypes } from 'sequelize';
 
 import Sequelize from '../sequelize';
 
+
 const application = Sequelize.define(
-    'application',
+    'applications',
     {
         title: {
             type: DataTypes.STRING,

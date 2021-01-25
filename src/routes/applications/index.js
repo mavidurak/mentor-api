@@ -40,29 +40,25 @@ const create = async (req, res, next) => {
     });
 
     if (dataSet) {
-      const newApplication = await models.application.create(req.body)
+      const application = await models.applications.create(req.body)
       return res.status(201).send({
-        application: newApplication.toJSON()
+        application: application.toJSON()
       });
     }
 
    return res.status(400).send({
       err: err.message
     })
-
-
 };
 
 const detail = async (req, res, next) => {
   const { id } = req.params;
   const user_id = req.user.id;
+  
   try {
 
-
-
-    const application = await models.application.findOne({
+    const application = await models.applications.findOne({
       where: {
-
         id,
       },
       include : [
@@ -97,7 +93,7 @@ const update = async (req, res, next) => {
   const { id } = req.params;
   const user_id = req.user.id;
   try {
-    const application = await models.application.findOne({
+    const application = await models.applications.findOne({
       where: {
         id,
       },
@@ -114,13 +110,13 @@ const update = async (req, res, next) => {
     });
 
     if (application) {
-        models.application.update(req.body, {
+     await  models.application.update(req.body, {
           where: {
             id: application.id,
           },
         });
         res.send({
-          message: `Id= ${id} was updated succesfully`,
+          application
         });
 
     }
@@ -140,7 +136,7 @@ const update = async (req, res, next) => {
 const deleteById = async (req, res, next) => {
   const { id } = req.params;
   const user_id = req.user.id;
-  const application = await models.application.findOne({
+  const application = await models.applications.findOne({
     where: {
       id,
 
@@ -156,13 +152,12 @@ const deleteById = async (req, res, next) => {
         required : true
       }
     ]
-
   });
 
 
   if (application) {
 
-      models.application.destroy({
+    await models.applications.destroy({
         where: {
           id,
         }
@@ -170,11 +165,11 @@ const deleteById = async (req, res, next) => {
       res.send({
         message: 'Data set was deleted successfully!',
       });
-    dataSet.catch((err) => {
-      res.status(500).send(err || {
-        message: `Could NOT delete Data set with id= ${id}`,
-      });
-    });
+    // dataSet.catch((err) => {
+    //   res.status(500).send(err || {
+    //     message: `Could NOT delete Data set with id= ${id}`,
+    //   });
+    // });
   }
 };
 
