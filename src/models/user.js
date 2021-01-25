@@ -103,8 +103,6 @@ const initialize = (models) => {
   models.user.prototype.createEmailConfirmationToken = async function () {
     const key = this.username + this.email + Math.floor(Math.random() * 9999);
     let key2 = '';
-    //const status = 'PENDING';
-    let status = token_status.PENDING;
 
     for (let i = 0; i < key.length; i++) {
       key2 += key[i] + Math.floor(Math.random() * 9);
@@ -119,7 +117,8 @@ const initialize = (models) => {
       }
     );
     if (user_email_confirmation_token) {
-      status = token_status.CANCELLED;
+      user_email_confirmation_token = token_status.CANCELLED;
+      await email_confirmation_token.save();
     }
 
     const token_value = encrypt(key2);
@@ -127,7 +126,7 @@ const initialize = (models) => {
     const email_confirmation_token = await models.email_confirmation_token.create(
       {
         token_value,
-        status: status,
+        status: token_status.PENDING,
         user_id: this.id,
       }
     );
