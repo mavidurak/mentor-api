@@ -196,7 +196,7 @@ const update_validation = {
 const update = async (req, res, next) => {
   const { error, value } = update_validation.body.validate(req.body);
   if (error) {
-    return res.status(400).send(error);
+    return res.status(400).send({ errors: error.details });
   }
 
   const { newUsername, password, newPassword } = req.body;
