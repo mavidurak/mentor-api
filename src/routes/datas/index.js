@@ -25,7 +25,14 @@ const add = async (req, res, next) => {
       value,
     });
   } catch (err) {
-    return res.status(400).send({ message: err });
+    return res.status(400).send({
+      error: {
+        details:
+        {
+          message: err
+        }
+      }
+    });
   }
 
   res.send(201, { data: data.toJSON() });
@@ -46,10 +53,12 @@ const getAll = async (req, res, next) => {
     return res.send({ result: data, count: data.length });
   } catch (err) {
     return res.status(500).send({
-      message:
-        err.message || 'Some error occurred while retrieving datas.',
-      result: [],
-      count: 0,
+      error: {
+        'details':
+        {
+          'message': err.message || 'Some error occurred while retrieving datas.'
+        }
+      }
     });
   }
 };
@@ -73,10 +82,22 @@ const detail = async (req, res, next) => {
       return res.send(data);
     }
 
-    return res.send({ message: `Error! No such data(id=${id}) or You don't have permission to see the this data` });
+    return res.send({
+      error: {
+        details:
+        {
+          message: `Error! No such data(id=${id}) or You don't have permission to see the this data`
+        }
+      }
+    });
   } catch (err) {
-    return res.status(500).send(err || {
-      message: `Error retrieving Data with id=${id}`,
+    return res.status(500).send({
+      error: {
+        details:
+        {
+          message: err.message || `Error retrieving Data with id=${id}`
+        }
+      }
     });
   }
 };
@@ -99,7 +120,12 @@ const update = async (req, res, next) => {
 
     if (data === null) {
       return res.send({
-        err: `Error updating data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`,
+        error: {
+          details:
+          {
+            message: `Error find data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`
+          }
+        }
       });
     }
 
@@ -112,11 +138,21 @@ const update = async (req, res, next) => {
     }
 
     return res.send({
-      err: `Error updating data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`,
+      error: {
+        details:
+        {
+          message: `Error updating data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`
+        }
+      }
     });
   } catch (err) {
     return res.send({
-      err: `Error updating data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`,
+      error: {
+        details:
+        {
+          message: err.message
+        }
+      }
     });
   }
 };
@@ -139,7 +175,12 @@ const deleteById = async (req, res, next) => {
 
     if (data === null) {
       return res.send({
-        message: `Cannot delete Data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`,
+        error: {
+          details:
+          {
+            message: `Error find data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`
+          }
+        }
       });
     }
 
@@ -153,13 +194,23 @@ const deleteById = async (req, res, next) => {
       });
     } else {
       res.send({
-        message: `Cannot delete Data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`,
+        error: {
+          details:
+          {
+            message: `Error deleye data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`
+          }
+        }
       });
     }
   } catch (err) {
     return res.send({
-      message: `Cannot delete Data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`,
-		  });
+      error: {
+        details:
+        {
+          message: err.message
+        }
+      }
+    });
   }
 };
 
