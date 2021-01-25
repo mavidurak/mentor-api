@@ -1,0 +1,5 @@
+const status = {
+	PENDING: 'PENDING',
+	CONFIRMED: "CONFIRMED",
+	CANCELLED: "CANCELLED"
+}

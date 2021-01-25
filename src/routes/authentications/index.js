@@ -3,20 +3,17 @@ import { Op } from 'sequelize';
 import { sendEmail, EmailTypes } from '../../utils/sendEmail';
 import models from '../../models';
 import {
-  makeSha512, createSaltHashPassword, encrypt, b64Encode, b64Decode,
+  makeSha512,
+  createSaltHashPassword,
+  encrypt,
+  b64Encode,
+  b64Decode,
 } from '../../utils/encryption';
 
 const login_validation = {
   body: Joi.object({
-    username: Joi.string()
-      .alphanum()
-      .min(3)
-      .max(30)
-      .required(),
-    password: Joi.string()
-      .min(8)
-      .max(30)
-      .required(),
+    username: Joi.string().alphanum().min(3).max(30).required(),
+    password: Joi.string().min(8).max(30).required(),
   }),
 };
 const login = async (req, res, next) => {
@@ -34,10 +31,13 @@ const login = async (req, res, next) => {
     const hash = makeSha512(password, user.password_salt);
     if (hash === user.password_hash) {
       if (user.is_email_confirmed !== true) {
-        return res.send(403, { message: 'This account has not been confirmed yet.' });
+        return res.send(403, {
+          message: 'This account has not been confirmed yet.',
+        });
       }
 
-      const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+      const ip_address =
+        req.headers['x-forwarded-for'] || req.connection.remoteAddress;
       const token = await user.createAccessToken(ip_address);
       return res.status(200).send({ token: token.toJSON() });
     }
@@ -52,36 +52,27 @@ const reSendConfirmEmail = async (req, res, next) => {
 
   const { username, password } = req.body;
   const user = await models.user.findOne({
-    where: { [Op.or]: { username: username.trim(), email: username.trim() } }
+    where: { [Op.or]: { username: username.trim(), email: username.trim() } },
   });
 
   if (user) {
     const hash = makeSha512(password, user.password_salt);
     if (hash === user.password_hash) {
-
       if (user.is_email_confirmed !== true) {
         const emailToken = await user.createEmailConfirmationToken();
         await sendEmail(user, emailToken);
-        return res.send(200, { message: 'Confirmation email sent.' })
+        return res.send(200, { message: 'Confirmation email sent.' });
       }
       return res.send(400, { message: 'User email already confirmed!' });
     }
   }
-  res.send(400, { message: 'User not found!' })
+  res.send(400, { message: 'User not found!' });
 };
 const register_validation = {
   body: Joi.object({
-    username: Joi.string()
-      .alphanum()
-      .min(3)
-      .max(30)
-      .required(),
-    password: Joi.string()
-      .min(8)
-      .max(30)
-      .required(),
-    email: Joi.string()
-      .email({ minDomainSegments: 2 }),
+    username: Joi.string().alphanum().min(3).max(30).required(),
+    password: Joi.string().min(8).max(30).required(),
+    email: Joi.string().email({ minDomainSegments: 2 }),
     name: Joi.string().min(3).max(30).required(),
   }),
 };
@@ -91,9 +82,7 @@ const register = async (req, res, next) => {
     return res.send(400, { error });
   }
 
-  const {
-    username, password, email, name,
-  } = req.body;
+  const { username, password, email, name } = req.body;
   let user = await models.user.findOne({
     where: { [Op.or]: { username: username.trim(), email: email.trim() } },
   });
@@ -102,11 +91,11 @@ const register = async (req, res, next) => {
     return res.send(400, { error: 'E-mail address or username is used!' });
   }
 
-  const {
-    salt: password_salt,
-    hash: password_hash,
-  } = createSaltHashPassword(password);
-  const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const { salt: password_salt, hash: password_hash } = createSaltHashPassword(
+    password
+  );
+  const ip_address =
+    req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   user = await models.user.create({
     username,
     email,
@@ -135,11 +124,13 @@ const me = (req, res, next) => {
 
 const emailConfirm = async (req, res, next) => {
   const token_value = req.query.token;
-  const email_confirmation_token = await models.email_confirmation_token.findOne({
-    where: {
-      token_value,
-    },
-  });
+  const email_confirmation_token = await models.email_confirmation_token.findOne(
+    {
+      where: {
+        token_value,
+      },
+    }
+  );
   if (email_confirmation_token) {
     await email_confirmation_token.confirmEmail();
   }
@@ -150,16 +141,9 @@ const emailConfirm = async (req, res, next) => {
 
 const update_validation = {
   body: Joi.object({
-    newPassword: Joi.string()
-      .min(8)
-      .max(30),
-    newUsername: Joi.string()
-      .alphanum()
-      .min(3)
-      .max(30),
-    password: Joi.string()
-      .min(3)
-      .max(30),
+    newPassword: Joi.string().min(8).max(30),
+    newUsername: Joi.string().alphanum().min(3).max(30),
+    password: Joi.string().min(3).max(30),
   }),
 };
 
@@ -179,14 +163,16 @@ const update = async (req, res, next) => {
     if (user) {
       const hash = makeSha512(password, user.password_salt);
       if (hash === user.password_hash) {
-        await models.user.update({
-          username: newUsername,
-        },
-        {
-          where: {
-            id: user.id,
+        await models.user.update(
+          {
+            username: newUsername,
           },
-        });
+          {
+            where: {
+              id: user.id,
+            },
+          }
+        );
         res.status(200).send({
           message: 'Username updated saccesfully',
         });
@@ -202,24 +188,25 @@ const update = async (req, res, next) => {
       where: { id: req.user.id },
     });
 
-    const {
-      salt: password_salt,
-      hash: password_hash,
-    } = createSaltHashPassword(newPassword);
+    const { salt: password_salt, hash: password_hash } = createSaltHashPassword(
+      newPassword
+    );
 
     if (user) {
       const hash = makeSha512(password, user.password_salt);
 
       if (hash === user.password_hash) {
-        await models.user.update({
-          password_hash,
-          password_salt,
-        },
-        {
-          where: {
-            id: user.id,
+        await models.user.update(
+          {
+            password_hash,
+            password_salt,
           },
-        });
+          {
+            where: {
+              id: user.id,
+            },
+          }
+        );
         res.status(200).send({
           message: 'Password updated succesfully',
         });
@@ -238,7 +225,7 @@ export default {
     router.get('/me', me);
     router.post('/register', register);
     router.post('/login', login);
-    router.post('/resend-confirm-email',reSendConfirmEmail)
+    router.post('/resend-confirm-email', reSendConfirmEmail);
     router.get('/email-confirmation', emailConfirm);
     router.patch('/me', update);
   },

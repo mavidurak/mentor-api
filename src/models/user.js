@@ -1,5 +1,7 @@
 import util from 'util';
+import models from '../models';
 
+import { token_status } from '../constants/tokenStatus';
 import { DataTypes, DATE } from 'sequelize';
 
 import Sequelize from '../sequelize';
@@ -13,7 +15,8 @@ import {
 } from '../utils/encryption';
 
 const user = Sequelize.define(
-  'user', {
+  'user',
+  {
     username: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -39,33 +42,31 @@ const user = Sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-  }, {
+  },
+  {
     timestamps: true,
     paranoid: true,
     underscored: true,
-  },
+  }
 );
 
 const initialize = (models) => {
-  models.user.hasMany(
-    models.token, {
-      as: 'user_tokens',
-      foreignKey: 'user_id',
-      sourceKey: 'id',
+  models.user.hasMany(models.token, {
+    as: 'user_tokens',
+    foreignKey: 'user_id',
+    sourceKey: 'id',
   });
-  
-  models.user.hasMany(
-    models.data_sets, {
-      as: 'user_data_sets',
-      foreignKey: 'user_id',
-      sourceKey: 'id',
+
+  models.user.hasMany(models.data_sets, {
+    as: 'user_data_sets',
+    foreignKey: 'user_id',
+    sourceKey: 'id',
   });
-  
-  models.user.hasMany(
-    models.email_confirmation_token, {
-      as: 'user_email_confirmation_token',
-      foreignKey: 'user_id',
-      sourceKey: 'id',
+
+  models.user.hasMany(models.email_confirmation_token, {
+    as: 'user_email_confirmation_token',
+    foreignKey: 'user_id',
+    sourceKey: 'id',
   });
 
   models.user.prototype.toJSON = function () {
@@ -102,29 +103,35 @@ const initialize = (models) => {
   models.user.prototype.createEmailConfirmationToken = async function () {
     const key = this.username + this.email + Math.floor(Math.random() * 9999);
     let key2 = '';
-    const status='PENDING';
-    
+    //const status = 'PENDING';
+    let status = token_status.PENDING;
+
     for (let i = 0; i < key.length; i++) {
       key2 += key[i] + Math.floor(Math.random() * 9);
     }
-    
-    const user_email_confirmation_token = await models.email_confirmation_token.findOne({
-      where: {
-        user_id: this.user_id,
-      },
-    });
-    if ( user_email_confirmation_token.token_status === 'PENDING') {
-      status='CANCELLED';
+
+    const user_email_confirmation_token = await models.email_confirmation_token.findOne(
+      {
+        where: {
+          user_id: this.user_id,
+          status: token_status.PENDING,
+        },
+      }
+    );
+    if (user_email_confirmation_token) {
+      status = token_status.CANCELLED;
     }
 
     const token_value = encrypt(key2);
-    
 
-    const emailConfirmationToken = await models.email_confirmation_token.create({
-      token_value,
-      token_status:status,
-      user_id: this.id,
-    });
+    const email_confirmation_token = await models.email_confirmation_token.create(
+      {
+        token_value,
+        status: status,
+        user_id: this.id,
+      }
+    );
+    await email_confirmation_token.save();
     return emailConfirmationToken.token_value;
   };
 };

@@ -1,6 +1,8 @@
 import { DataTypes } from 'sequelize';
 import models from '.';
+import models from '../models';
 
+import { token_status } from '../constants/tokenStatus';
 import Sequelize from '../sequelize';
 
 import { encrypt } from '../utils/encryption';
@@ -12,7 +14,7 @@ const email_confirmation_token = Sequelize.define(
       type: DataTypes.STRING,
       allowNull: true,
     },
-    token_status: {
+    status: {
       type: DataTypes.STRING,
       allowNull: false,
     },
@@ -20,7 +22,7 @@ const email_confirmation_token = Sequelize.define(
   {
     timestamps: true,
     underscored: true,
-  },
+  }
 );
 
 const initialize = (models) => {
@@ -41,9 +43,9 @@ const initialize = (models) => {
     if (!user) {
       return false;
     }
-    
+
     user.is_email_confirmed = true;
-    this.token_status='CONFIRMED';
+    this.status = token_status.CONFIRMED;
     await user.save();
     await email_confirmation_token.save();
     return true;
