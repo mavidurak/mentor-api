@@ -1,5 +1,5 @@
-const status = {
+const token_status = {
 	PENDING: 'PENDING',
-	CONFIRMED: "CONFIRMED",
-	CANCELLED: "CANCELLED"
+	CONFIRMED: 'CONFIRMED',
+	CANCELLED: 'CANCELLED'
 }
