@@ -1,4 +1,6 @@
-import Joi, { required } from 'joi';
+import Joi, {
+  required
+} from 'joi';
 import models from '../../models';
 
 const create_validation = {
@@ -27,54 +29,57 @@ const create_validation = {
 
 const create = async (req, res, next) => {
   const user_id = req.user.id;
-  const { error, value } = create_validation.body.validate(req.body);
+  const {
+    error,
+    value
+  } = create_validation.body.validate(req.body);
   if (error) {
-    return res.send(400, { error });
+    return res.send(400, {
+      error
+    });
   }
 
-    const dataSet = await models.data_sets.findOne({
-      where: {
-        id: req.body.dataset_id,
-        user_id,
-      },
+  const dataSet = await models.data_sets.findOne({
+    where: {
+      id: req.body.dataset_id,
+      user_id,
+    },
+  });
+
+  if (dataSet) {
+    const application = await models.applications.create(req.body);
+    return res.status(201).send({
+      application: application.toJSON()
     });
+  }
 
-    if (dataSet) {
-      const application = await models.applications.create(req.body)
-      return res.status(201).send({
-        application: application.toJSON()
-      });
-    }
-
-   return res.status(400).send({
-      err: err.message
-    })
+  return res.status(400).send({
+    err: err.message
+  });
 };
 
 const detail = async (req, res, next) => {
-  const { id } = req.params;
+  const {
+    id
+  } = req.params;
   const user_id = req.user.id;
-  
-  try {
 
+  try {
     const application = await models.applications.findOne({
       where: {
         id,
       },
-      include : [
-        {
-          model : models.data_sets,
-          as : 'data_sets',
-          where : {
-            user_id : user_id
-          },
-          required : true
-        }
-      ]
+      include: [{
+        model: models.data_sets,
+        as: 'data_sets',
+        where: {
+          user_id: user_id
+        },
+        required: true
+      }]
     });
     if (application) {
-        res.send(application);
-
+      res.send(application);
     } else {
       res.status(204).send({
         message: 'Data set not found !',
@@ -90,37 +95,35 @@ const detail = async (req, res, next) => {
 };
 
 const update = async (req, res, next) => {
-  const { id } = req.params;
+  const {
+    id
+  } = req.params;
   const user_id = req.user.id;
   try {
     const application = await models.applications.findOne({
       where: {
         id,
       },
-      include : [
-        {
-          model : models.data_sets,
-          as : 'data_sets',
-          where : {
-            user_id : user_id
-          },
-          required : true
-        }
-      ]
+      include: [{
+        model: models.data_sets,
+        as: 'data_sets',
+        where: {
+          user_id: user_id
+        },
+        required: true
+      }]
     });
 
     if (application) {
-     await  models.application.update(req.body, {
-          where: {
-            id: application.id,
-          },
-        });
-        res.send({
-          application
-        });
-
-    }
-    else {
+      await models.application.update(req.body, {
+        where: {
+          id: application.id,
+        },
+      });
+      res.send({
+        application
+      });
+    } else {
       res.status(204).send({
         message: 'Not found Data set!',
       });
@@ -134,42 +137,33 @@ const update = async (req, res, next) => {
 };
 
 const deleteById = async (req, res, next) => {
-  const { id } = req.params;
+  const {
+    id
+  } = req.params;
   const user_id = req.user.id;
   const application = await models.applications.findOne({
     where: {
       id,
-
     },
-
-    include : [
-      {
-        model : models.data_sets,
-        as : 'data_sets',
-        where : {
-          user_id : user_id
-        },
-        required : true
-      }
-    ]
+    include: [{
+      model: models.data_sets,
+      as: 'data_sets',
+      where: {
+        user_id: user_id
+      },
+      required: true
+    }]
   });
 
-
   if (application) {
-
     await models.applications.destroy({
-        where: {
-          id,
-        }
-      });
-      res.send({
-        message: 'Data set was deleted successfully!',
-      });
-    // dataSet.catch((err) => {
-    //   res.status(500).send(err || {
-    //     message: `Could NOT delete Data set with id= ${id}`,
-    //   });
-    // });
+      where: {
+        id,
+      }
+    });
+    res.send({
+      message: 'Data set was deleted successfully!',
+    });
   }
 };
 
