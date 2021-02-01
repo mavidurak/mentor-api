@@ -7,7 +7,8 @@
     "serve": "nodemon start",
     "debug": "nodemon --inspect src/server --exec babel-node",
     "migrate": "./node_modules/.bin/sequelize db:migrate",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "build-hooks": "cp -R hooks ./.git/ && chmod +x ./.git/hooks/pre-commit"
   },
   "repository": {
     "type": "git",
