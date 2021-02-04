@@ -1,11 +1,12 @@
 import Joi, {
-  required
+  required,
 } from 'joi';
 import models from '../../models';
 
 const create_validation = {
   body: Joi.object({
-    dataset_id: Joi.required(),
+    dataset_id: Joi.number()
+      .required(),
     title: Joi.string()
       .min(2)
       .alphanum()
@@ -21,9 +22,12 @@ const create_validation = {
     secret_token: Joi.string()
       .min(5)
       .required(),
-    permission_read: Joi.required(),
-    permission_write: Joi.required(),
-    permission_delete: Joi.required()
+    permission_read: Joi.boolean()
+      .required(),
+    permission_write: Joi.boolean()
+      .required(),
+    permission_delete: Joi.boolean()
+      .required(),
   }),
 };
 
@@ -31,11 +35,11 @@ const create = async (req, res, next) => {
   const user_id = req.user.id;
   const {
     error,
-    value
+    value,
   } = create_validation.body.validate(req.body);
   if (error) {
     return res.send(400, {
-      error
+      errors: error,
     });
   }
 
@@ -49,18 +53,18 @@ const create = async (req, res, next) => {
   if (dataSet) {
     const application = await models.applications.create(req.body);
     return res.status(201).send({
-      application: application.toJSON()
+      application: application.toJSON(),
     });
   }
 
   return res.status(400).send({
-    err: err.message
+    err: 'Application not found or you do not have a pormision!',
   });
 };
 
 const detail = async (req, res, next) => {
   const {
-    id
+    id,
   } = req.params;
   const user_id = req.user.id;
 
@@ -73,10 +77,10 @@ const detail = async (req, res, next) => {
         model: models.data_sets,
         as: 'data_sets',
         where: {
-          user_id: user_id
+          user_id,
         },
-        required: true
-      }]
+        required: true,
+      }],
     });
     if (application) {
       res.send(application);
@@ -96,7 +100,7 @@ const detail = async (req, res, next) => {
 
 const update = async (req, res, next) => {
   const {
-    id
+    id,
   } = req.params;
   const user_id = req.user.id;
   try {
@@ -108,20 +112,20 @@ const update = async (req, res, next) => {
         model: models.data_sets,
         as: 'data_sets',
         where: {
-          user_id: user_id
+          user_id,
         },
-        required: true
-      }]
+        required: true,
+      }],
     });
 
     if (application) {
-      await models.application.update(req.body, {
+      await models.applications.update(req.body, {
         where: {
           id: application.id,
         },
       });
       res.send({
-        application
+        application,
       });
     } else {
       res.status(204).send({
@@ -138,7 +142,7 @@ const update = async (req, res, next) => {
 
 const deleteById = async (req, res, next) => {
   const {
-    id
+    id,
   } = req.params;
   const user_id = req.user.id;
   const application = await models.applications.findOne({
@@ -149,24 +153,26 @@ const deleteById = async (req, res, next) => {
       model: models.data_sets,
       as: 'data_sets',
       where: {
-        user_id: user_id
+        user_id,
       },
-      required: true
-    }]
+      required: true,
+    }],
   });
 
   if (application) {
     await models.applications.destroy({
       where: {
         id,
-      }
+      },
     });
     res.send({
-      message: 'Data set was deleted successfully!',
+      message: 'Application was deleted successfully!',
     });
   }
-};
-
+  return res.status(401).send({
+    message: 'Not found Data set!',
+  });
+}; 0;
 
 export default {
   prefix: '/applications',

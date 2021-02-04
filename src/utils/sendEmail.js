@@ -5,46 +5,46 @@ import * as fs from 'fs';
 export const EmailTypes = {
   confirm: 'confirm',
   forgotPassword: 'forgotPassword',
-  changeApplicationPermission: 'changeApplicationPermission'
-}
+  changeApplicationPermission: 'changeApplicationPermission',
+};
 
-export const sendEmail = async ( emailType, user, token ) => {
-  
-  var email={
+export const sendEmail = async (emailType, user, token) => {
+  const email = {
     sender: process.env.EMAIL_USER,
     to: user.email,
     subject: null,
     content: null,
-    buttonHref: null
-  }
-  var source, template, replacements
+    buttonHref: null,
+  };
+  let source; let template; let
+    replacements;
   switch (emailType) {
     case 'confirm':
-      email.subject='Welcome to MaviDurak-IO'
-      email.buttonHref = `${process.env.API_PATH}/authentications/email-confirmation?token=${token}`;  
+      email.subject = 'Welcome to MaviDurak-IO';
+      email.buttonHref = `${process.env.API_PATH}/authentications/email-confirmation?token=${token}`;
       source = fs.readFileSync('src/templates/ConfirmationEmail.html', 'utf-8').toString();
       template = handlebars.compile(source);
       replacements = {
         username: user.name,
-        href: email.buttonHref
+        href: email.buttonHref,
       };
       break;
 
     case 'forgotPassword':
-      email.subject='Reset your MaviDurak-IO account password'
+      email.subject = 'Reset your MaviDurak-IO account password';
       email.buttonHref = `${process.env.API_PATH}/authentications/forgot-password?token=${token}`;
       source = fs.readFileSync('src/templates/ForgotPasswordEmail.html', 'utf-8').toString();
       template = handlebars.compile(source);
       replacements = {
         username: user.name,
-        href: email.buttonHref
-      };  
-    break;
+        href: email.buttonHref,
+      };
+      break;
 
     case 'changeApplicationPermission':
-      email.subject='Change yours application permissions'
+      email.subject = 'Change yours application permissions';
       email.buttonHref;
-    break;
+      break;
 
     default:
       break;
@@ -60,19 +60,19 @@ export const sendEmail = async ( emailType, user, token ) => {
     },
   });
 
-  email.content = template(replacements);  
+  email.content = template(replacements);
   // send mail with defined transport object
   const info = await transporter.sendMail({
     from: email.from,
     to: email.to,
     subject: email.subject,
-    html: email.content
+    html: email.content,
   });
-  
+
   console.log(`\n++++++++++++++++| ${emailType} Message sent to ${email.to} - ${info.messageId} |++++++++++++++++\n`);
 };
 
 export default {
   sendEmail,
-  EmailTypes
+  EmailTypes,
 };

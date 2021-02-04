@@ -1,8 +1,7 @@
 import authentications from './authentications';
-import applications from './applications'
+import applications from './applications';
 import dataSets from './dataSets';
 import datas from './datas';
-
 
 export default [
   authentications,

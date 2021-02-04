@@ -1,5 +1,3 @@
-'use strict';
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     const transaction = await queryInterface.sequelize.transaction();
@@ -7,9 +5,9 @@ module.exports = {
       await queryInterface.removeConstraint(
         'datas',
         'datas_ibfk_1',
-        { transaction }
+        { transaction },
       );
-      await queryInterface.addConstraint('datas',  {
+      await queryInterface.addConstraint('datas', {
         fields: ['dataset_id'],
         type: 'foreign key',
         name: 'datas_ibfk_1',
@@ -19,7 +17,7 @@ module.exports = {
         },
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
-        transaction
+        transaction,
       });
       return transaction.commit();
     } catch (error) {
@@ -34,7 +32,7 @@ module.exports = {
       await queryInterface.removeConstraint(
         'datas',
         'datas_ibfk_1',
-        { transaction }
+        { transaction },
       );
       await queryInterface.addConstraint('datas', {
         fields: ['dataset_id'],
@@ -44,7 +42,7 @@ module.exports = {
           table: 'data_sets',
           field: 'id',
         },
-        transaction
+        transaction,
       });
       return transaction.commit();
     } catch (error) {
@@ -52,5 +50,5 @@ module.exports = {
       throw error;
     }
   },
-  
+
 };

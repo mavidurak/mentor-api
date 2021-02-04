@@ -52,22 +52,21 @@ const reSendConfirmEmail = async (req, res, next) => {
 
   const { username, password } = req.body;
   const user = await models.user.findOne({
-    where: { [Op.or]: { username: username.trim(), email: username.trim() } }
+    where: { [Op.or]: { username: username.trim(), email: username.trim() } },
   });
 
   if (user) {
     const hash = makeSha512(password, user.password_salt);
     if (hash === user.password_hash) {
-
       if (user.is_email_confirmed !== true) {
         const emailToken = await user.createEmailConfirmationToken();
         await sendEmail(user, emailToken);
-        return res.send(200, { message: 'Confirmation email sent.' })
+        return res.send(200, { message: 'Confirmation email sent.' });
       }
       return res.send(400, { message: 'User email already confirmed!' });
     }
   }
-  res.send(400, { message: 'User not found!' })
+  res.send(400, { message: 'User not found!' });
 };
 const register_validation = {
   body: Joi.object({
@@ -146,7 +145,7 @@ const emailConfirm = async (req, res, next) => {
   return res.redirect(`${process.env.DASHBOARD_UI_PATH}/login`);
 };
 
-/// Update Methods///
+
 
 const update_validation = {
   body: Joi.object({
@@ -175,7 +174,7 @@ const update = async (req, res, next) => {
     const user = await models.user.findOne({
       where: { id: req.user.id },
     });
-    // ----//
+
     if (user) {
       const hash = makeSha512(password, user.password_salt);
       if (hash === user.password_hash) {
@@ -238,7 +237,7 @@ export default {
     router.get('/me', me);
     router.post('/register', register);
     router.post('/login', login);
-    router.post('/resend-confirm-email',reSendConfirmEmail)
+    router.post('/resend-confirm-email', reSendConfirmEmail);
     router.get('/email-confirmation', emailConfirm);
     router.patch('/me', update);
   },

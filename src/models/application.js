@@ -1,9 +1,8 @@
 import {
-  DataTypes
+  DataTypes,
 } from 'sequelize';
 
 import Sequelize from '../sequelize';
-
 
 const applications = Sequelize.define(
   'applications', {
@@ -11,23 +10,23 @@ const applications = Sequelize.define(
       type: DataTypes.STRING,
     },
     description: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     access_token: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     secret_token: {
-      type: DataTypes.STRING
+      type: DataTypes.STRING,
     },
     permission_read: {
-      type: DataTypes.BOOLEAN
+      type: DataTypes.BOOLEAN,
     },
     permission_delete: {
-      type: DataTypes.BOOLEAN
+      type: DataTypes.BOOLEAN,
     },
     permission_write: {
-      type: DataTypes.BOOLEAN
-    }
+      type: DataTypes.BOOLEAN,
+    },
   }, {
     timestamps: true,
     underscored: true,
@@ -35,7 +34,7 @@ const applications = Sequelize.define(
 );
 
 const initialize = (models) => {
-  models.application.belongsTo(models.data_sets, {
+  models.applications.belongsTo(models.data_sets, {
     as: 'data_sets',
     foreignKey: {
       name: 'dataset_id',
@@ -45,6 +44,6 @@ const initialize = (models) => {
 };
 
 export default {
-  model: application,
-  initialize
+  model: applications,
+  initialize,
 };

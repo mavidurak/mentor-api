@@ -41,11 +41,11 @@ module.exports = {
         },
         permission_write: {
           type: Sequelize.BOOLEAN,
-          allowNull: false
+          allowNull: false,
         },
         permission_delete: {
           type: Sequelize.BOOLEAN,
-          allowNull: false
+          allowNull: false,
         },
         created_at: {
           allowNull: false,
@@ -57,7 +57,7 @@ module.exports = {
         },
         deleted_at: {
           type: Sequelize.DATE,
-        }
+        },
       },
     );
   },
