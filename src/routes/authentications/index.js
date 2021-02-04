@@ -19,7 +19,7 @@ const login_validation = {
 const login = async (req, res, next) => {
   const { error, value } = login_validation.body.validate(req.body);
   if (error) {
-    return res.status(400).send({ error: error.details });
+    return res.status(400).send({ errors: error.details });
   }
 
   const { username, password } = req.body;
@@ -32,7 +32,15 @@ const login = async (req, res, next) => {
     if (hash === user.password_hash) {
       if (user.is_email_confirmed !== true) {
         return res.send(403, {
+<<<<<<< HEAD
           message: 'This account has not been confirmed yet.',
+=======
+          errors: [
+            {
+              message: 'This account has not been confirmed yet.'
+            }
+          ]
+>>>>>>> fd282d6d343147364bbc343f0e2b51ab16d93706
         });
       }
 
@@ -42,12 +50,18 @@ const login = async (req, res, next) => {
       return res.status(200).send({ token: token.toJSON() });
     }
   }
-  res.send(400, { message: 'User not found!' });
+  res.send(400, {
+    errors: [
+      {
+        message: 'User not found!'
+      }
+    ]
+  });
 };
 const reSendConfirmEmail = async (req, res, next) => {
   const { error, value } = login_validation.body.validate(req.body);
   if (error) {
-    return res.status(400).send({ error: error.details });
+    return res.status(400).send({ errors: error.details });
   }
 
   const { username, password } = req.body;
@@ -63,10 +77,26 @@ const reSendConfirmEmail = async (req, res, next) => {
         await sendEmail(user, emailToken);
         return res.send(200, { message: 'Confirmation email sent.' });
       }
-      return res.send(400, { message: 'User email already confirmed!' });
+      return res.send(400, {
+        errors: [
+          {
+            message: 'User email already confirmed!'
+          }
+        ]
+      });
     }
   }
+<<<<<<< HEAD
   res.send(400, { message: 'User not found!' });
+=======
+  res.send(400, {
+    errors: [
+      {
+        message: 'User not found!'
+      }
+    ]
+  })
+>>>>>>> fd282d6d343147364bbc343f0e2b51ab16d93706
 };
 const register_validation = {
   body: Joi.object({
@@ -79,7 +109,7 @@ const register_validation = {
 const register = async (req, res, next) => {
   const { error, value } = register_validation.body.validate(req.body);
   if (error) {
-    return res.send(400, { error });
+    return res.send(400, { errors: error.details });
   }
 
   const { username, password, email, name } = req.body;
@@ -88,7 +118,13 @@ const register = async (req, res, next) => {
   });
 
   if (user) {
-    return res.send(400, { error: 'E-mail address or username is used!' });
+    return res.send(400, {
+      errors: [
+        {
+          message: 'E-mail address or username is used!'
+        }
+      ]
+    });
   }
 
   const { salt: password_salt, hash: password_hash } = createSaltHashPassword(
@@ -150,7 +186,7 @@ const update_validation = {
 const update = async (req, res, next) => {
   const { error, value } = update_validation.body.validate(req.body);
   if (error) {
-    return res.status(400).send({ message: error.details[0].message });
+    return res.status(400).send({ errors: error.details });
   }
 
   const { newUsername, password, newPassword } = req.body;
@@ -163,22 +199,36 @@ const update = async (req, res, next) => {
     if (user) {
       const hash = makeSha512(password, user.password_salt);
       if (hash === user.password_hash) {
+<<<<<<< HEAD
         await models.user.update(
           {
             username: newUsername,
           },
+=======
+        await models.user.update({
+          username: newUsername,
+        },
+>>>>>>> fd282d6d343147364bbc343f0e2b51ab16d93706
           {
             where: {
               id: user.id,
             },
+<<<<<<< HEAD
           }
         );
+=======
+          });
+>>>>>>> fd282d6d343147364bbc343f0e2b51ab16d93706
         res.status(200).send({
           message: 'Username updated saccesfully',
         });
       } else {
         res.status(401).send({
-          message: 'Password Not Correct!',
+          errors: [
+            {
+              message: 'Password Not Correct!'
+            }
+          ]
         });
       }
     }
@@ -196,23 +246,38 @@ const update = async (req, res, next) => {
       const hash = makeSha512(password, user.password_salt);
 
       if (hash === user.password_hash) {
+<<<<<<< HEAD
         await models.user.update(
           {
             password_hash,
             password_salt,
           },
+=======
+        await models.user.update({
+          password_hash,
+          password_salt,
+        },
+>>>>>>> fd282d6d343147364bbc343f0e2b51ab16d93706
           {
             where: {
               id: user.id,
             },
+<<<<<<< HEAD
           }
         );
+=======
+          });
+>>>>>>> fd282d6d343147364bbc343f0e2b51ab16d93706
         res.status(200).send({
           message: 'Password updated succesfully',
         });
       } else {
         res.status(401).send({
-          message: 'Password Not Correct!',
+          errors: [
+            {
+              message: 'Password Not Correct!'
+            }
+          ]
         });
       }
     }
@@ -225,7 +290,11 @@ export default {
     router.get('/me', me);
     router.post('/register', register);
     router.post('/login', login);
+<<<<<<< HEAD
     router.post('/resend-confirm-email', reSendConfirmEmail);
+=======
+    router.post('/resend-confirm-email', reSendConfirmEmail)
+>>>>>>> fd282d6d343147364bbc343f0e2b51ab16d93706
     router.get('/email-confirmation', emailConfirm);
     router.patch('/me', update);
   },
