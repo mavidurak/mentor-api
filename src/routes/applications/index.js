@@ -1,6 +1,4 @@
-import Joi, {
-  required,
-} from 'joi';
+import Joi from 'joi';
 import models from '../../models';
 
 const create_validation = {
@@ -58,7 +56,11 @@ const create = async (req, res, next) => {
   }
 
   return res.status(400).send({
-    err: 'Application not found or you do not have a pormision!',
+    errors: [
+      {
+        message: 'Application\'s data set not found or you do not have a permission!'
+      }
+    ]
   });
 };
 
@@ -82,18 +84,26 @@ const detail = async (req, res, next) => {
         required: true,
       }],
     });
+
     if (application) {
       res.send(application);
     } else {
-      res.status(204).send({
-        message: 'Data set not found !',
+      res.status(401).send({
+        errors: [
+          {
+            message: 'Application not found or you do not have a permission!'
+          }
+        ]
       });
     }
   } catch (err) {
-    res.status(500).send(
-      err || {
-        message: `Error retrieving Data set with id= ${id}`,
-      },
+    res.status(500).send({
+        errors: [
+          {
+            message: err.message || `Error retrieving application with id= ${id}`
+          }
+        ]
+      }
     );
   }
 };
@@ -125,17 +135,24 @@ const update = async (req, res, next) => {
         },
       });
       res.send({
-        application,
+        message: `Application was updated succesfully`,
       });
     } else {
-      res.status(204).send({
-        message: 'Not found Data set!',
+      res.status(401).send({
+        errors: [
+          {
+            message: 'Application\'s data set not found or you do not have a permission!'
+          }
+        ]
       });
     }
   } catch (err) {
-    console.log(err);
-    res.status(500).send(err || {
-      message: `Could NOT update Data set with id= ${id}`,
+    res.status(500).send({
+      errors: [
+        {
+          message: err.message || `Could NOT update application with id= ${id}`
+        }
+      ]
     });
   }
 };
@@ -170,9 +187,13 @@ const deleteById = async (req, res, next) => {
     });
   }
   return res.status(401).send({
-    message: 'Not found Data set!',
+    errors: [
+      {
+        message: 'Application not found or you do not have a permission!'
+      }
+    ]
   });
-}; 0;
+};
 
 export default {
   prefix: '/applications',

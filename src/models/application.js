@@ -29,8 +29,9 @@ const applications = Sequelize.define(
     },
   }, {
     timestamps: true,
+    paranoid: true,
     underscored: true,
-  },
+  }
 );
 
 const initialize = (models) => {
