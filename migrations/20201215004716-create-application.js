@@ -29,11 +29,13 @@ module.exports = {
         },
         access_token: {
           type: Sequelize.STRING,
-          allowNull: false,
+          allowNull: true,
+          defaultValue: null,
         },
         secret_token: {
-          allowNull: false,
           type: Sequelize.STRING,
+          allowNull: true,
+          defaultValue: null,
         },
         permission_read: {
           type: Sequelize.BOOLEAN,

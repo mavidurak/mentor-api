@@ -14,12 +14,6 @@ const create_validation = {
       .min(2)
       .max(30)
       .required(),
-    access_token: Joi.string()
-      .min(5)
-      .required(),
-    secret_token: Joi.string()
-      .min(5)
-      .required(),
     permission_read: Joi.boolean()
       .required(),
     permission_write: Joi.boolean()
@@ -50,6 +44,7 @@ const create = async (req, res, next) => {
 
   if (dataSet) {
     const application = await models.applications.create(req.body);
+    await application.createToken()
     return res.status(201).send({
       application: application.toJSON(),
     });
@@ -135,7 +130,7 @@ const update = async (req, res, next) => {
         },
       });
       res.send({
-        message: `Application was updated succesfully`,
+        application: application.toJSON(),
       });
     } else {
       res.status(401).send({
