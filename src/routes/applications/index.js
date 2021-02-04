@@ -44,7 +44,7 @@ const create = async (req, res, next) => {
 
   if (dataSet) {
     const application = await models.applications.create(req.body);
-    await application.createToken()
+    await application.createToken();
     return res.status(201).send({
       application: application.toJSON(),
     });
@@ -53,9 +53,9 @@ const create = async (req, res, next) => {
   return res.status(400).send({
     errors: [
       {
-        message: 'Application\'s data set not found or you do not have a permission!'
-      }
-    ]
+        message: 'Application\'s data set not found or you do not have a permission!',
+      },
+    ],
   });
 };
 
@@ -86,20 +86,19 @@ const detail = async (req, res, next) => {
       res.status(401).send({
         errors: [
           {
-            message: 'Application not found or you do not have a permission!'
-          }
-        ]
+            message: 'Application not found or you do not have a permission!',
+          },
+        ],
       });
     }
   } catch (err) {
     res.status(500).send({
-        errors: [
-          {
-            message: err.message || `Error retrieving application with id= ${id}`
-          }
-        ]
-      }
-    );
+      errors: [
+        {
+          message: err.message || `Error retrieving application with id= ${id}`,
+        },
+      ],
+    });
   }
 };
 
@@ -136,18 +135,18 @@ const update = async (req, res, next) => {
       res.status(401).send({
         errors: [
           {
-            message: 'Application\'s data set not found or you do not have a permission!'
-          }
-        ]
+            message: 'Application\'s data set not found or you do not have a permission!',
+          },
+        ],
       });
     }
   } catch (err) {
     res.status(500).send({
       errors: [
         {
-          message: err.message || `Could NOT update application with id= ${id}`
-        }
-      ]
+          message: err.message || `Could NOT update application with id= ${id}`,
+        },
+      ],
     });
   }
 };
@@ -184,9 +183,9 @@ const deleteById = async (req, res, next) => {
   return res.status(401).send({
     errors: [
       {
-        message: 'Application not found or you do not have a permission!'
-      }
-    ]
+        message: 'Application not found or you do not have a permission!',
+      },
+    ],
   });
 };
 

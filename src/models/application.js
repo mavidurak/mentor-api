@@ -4,7 +4,7 @@ import {
 
 import Sequelize from '../sequelize';
 import {
-  encrypt
+  encrypt,
 } from '../utils/encryption';
 
 const applications = Sequelize.define(
@@ -39,7 +39,7 @@ const applications = Sequelize.define(
     timestamps: true,
     paranoid: true,
     underscored: true,
-  }
+  },
 );
 
 const initialize = (models) => {
@@ -55,7 +55,7 @@ const initialize = (models) => {
     const expired_at = new Date();
     expired_at.setDate(new Date().getDate() + 30);
     const timestamp = Math.round(new Date().getTime() / 1000);
-    const random = Math.floor(Math.random()*999999);
+    const random = Math.floor(Math.random() * 999999);
     const key = `${this.id}_${random}_${timestamp}`;
 
     this.access_token = encrypt(key);

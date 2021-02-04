@@ -37,9 +37,9 @@ const login = async (req, res, next) => {
         return res.send(403, {
           errors: [
             {
-              message: 'This account has not been confirmed yet.'
-            }
-          ]
+              message: 'This account has not been confirmed yet.',
+            },
+          ],
         });
       }
 
@@ -51,9 +51,9 @@ const login = async (req, res, next) => {
   res.send(400, {
     errors: [
       {
-        message: 'User not found!'
-      }
-    ]
+        message: 'User not found!',
+      },
+    ],
   });
 };
 const reSendConfirmEmail = async (req, res, next) => {
@@ -78,9 +78,9 @@ const reSendConfirmEmail = async (req, res, next) => {
       return res.send(400, {
         errors: [
           {
-            message: 'User email already confirmed!'
-          }
-        ]
+            message: 'User email already confirmed!',
+          },
+        ],
       });
     }
   }
@@ -88,10 +88,10 @@ const reSendConfirmEmail = async (req, res, next) => {
   res.send(400, {
     errors: [
       {
-        message: 'User not found!'
-      }
-    ]
-  })
+        message: 'User not found!',
+      },
+    ],
+  });
 };
 const register_validation = {
   body: Joi.object({
@@ -126,9 +126,9 @@ const register = async (req, res, next) => {
     return res.send(400, {
       errors: [
         {
-          message: 'E-mail address or username is used!'
-        }
-      ]
+          message: 'E-mail address or username is used!',
+        },
+      ],
     });
   }
 
@@ -176,8 +176,6 @@ const emailConfirm = async (req, res, next) => {
   return res.redirect(`${process.env.DASHBOARD_UI_PATH}/login`);
 };
 
-
-
 const update_validation = {
   body: Joi.object({
     newPassword: Joi.string()
@@ -212,11 +210,11 @@ const update = async (req, res, next) => {
         await models.user.update({
           username: newUsername,
         },
-          {
-            where: {
-              id: user.id,
-            },
-          });
+        {
+          where: {
+            id: user.id,
+          },
+        });
         res.status(200).send({
           message: 'Username updated saccesfully',
         });
@@ -224,9 +222,9 @@ const update = async (req, res, next) => {
         res.status(401).send({
           errors: [
             {
-              message: 'Password Not Correct!'
-            }
-          ]
+              message: 'Password Not Correct!',
+            },
+          ],
         });
       }
     }
@@ -249,11 +247,11 @@ const update = async (req, res, next) => {
           password_hash,
           password_salt,
         },
-          {
-            where: {
-              id: user.id,
-            },
-          });
+        {
+          where: {
+            id: user.id,
+          },
+        });
         res.status(200).send({
           message: 'Password updated succesfully',
         });
@@ -261,9 +259,9 @@ const update = async (req, res, next) => {
         res.status(401).send({
           errors: [
             {
-              message: 'Password Not Correct!'
-            }
-          ]
+              message: 'Password Not Correct!',
+            },
+          ],
         });
       }
     }
