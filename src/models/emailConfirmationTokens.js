@@ -47,7 +47,7 @@ const initialize = (models) => {
     user.is_email_confirmed = true;
     this.status = token_status.CONFIRMED;
     await user.save();
-    await email_confirmation_token.save();
+    await this.save();
     return true;
   };
 };
