@@ -1,8 +1,8 @@
 import util from 'util';
-import models from '../models';
+import { DataTypes, DATE } from 'sequelize';
+import models from '.';
 
 import { token_status } from '../constants/tokenStatus';
-import { DataTypes, DATE } from 'sequelize';
 
 import Sequelize from '../sequelize';
 
@@ -47,7 +47,7 @@ const user = Sequelize.define(
     timestamps: true,
     paranoid: true,
     underscored: true,
-  }
+  },
 );
 
 const initialize = (models) => {
@@ -114,7 +114,7 @@ const initialize = (models) => {
           user_id: this.user_id,
           status: token_status.PENDING,
         },
-      }
+      },
     );
     if (user_email_confirmation_token) {
       user_email_confirmation_token.status = token_status.CANCELLED;
@@ -128,7 +128,7 @@ const initialize = (models) => {
         token_value,
         status: token_status.PENDING,
         user_id: this.id,
-      }
+      },
     );
     await email_confirmation_token.save();
     return emailConfirmationToken.token_value;

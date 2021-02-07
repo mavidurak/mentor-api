@@ -12,7 +12,8 @@ import {
 
 const login_validation = {
   body: Joi.object({
-    username: Joi.string().alphanum().min(3).max(30).required(),
+    username: Joi.string().alphanum().min(3).max(30)
+      .required(),
     password: Joi.string().min(8).max(30).required(),
   }),
 };
@@ -34,14 +35,13 @@ const login = async (req, res, next) => {
         return res.send(403, {
           errors: [
             {
-              message: 'This account has not been confirmed yet.'
-            }
-          ]
+              message: 'This account has not been confirmed yet.',
+            },
+          ],
         });
       }
 
-      const ip_address =
-        req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+      const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
       const token = await user.createAccessToken(ip_address);
       return res.status(200).send({ token: token.toJSON() });
     }
@@ -49,9 +49,9 @@ const login = async (req, res, next) => {
   res.send(400, {
     errors: [
       {
-        message: 'User not found!'
-      }
-    ]
+        message: 'User not found!',
+      },
+    ],
   });
 };
 const reSendConfirmEmail = async (req, res, next) => {
@@ -76,23 +76,24 @@ const reSendConfirmEmail = async (req, res, next) => {
       return res.send(400, {
         errors: [
           {
-            message: 'User email already confirmed!'
-          }
-        ]
+            message: 'User email already confirmed!',
+          },
+        ],
       });
     }
   }
   res.send(400, {
     errors: [
       {
-        message: 'User not found!'
-      }
-    ]
-  })
+        message: 'User not found!',
+      },
+    ],
+  });
 };
 const register_validation = {
   body: Joi.object({
-    username: Joi.string().alphanum().min(3).max(30).required(),
+    username: Joi.string().alphanum().min(3).max(30)
+      .required(),
     password: Joi.string().min(8).max(30).required(),
     email: Joi.string().email({ minDomainSegments: 2 }),
     name: Joi.string().min(3).max(30).required(),
@@ -104,7 +105,9 @@ const register = async (req, res, next) => {
     return res.send(400, { errors: error.details });
   }
 
-  const { username, password, email, name } = req.body;
+  const {
+    username, password, email, name,
+  } = req.body;
   let user = await models.user.findOne({
     where: { [Op.or]: { username: username.trim(), email: email.trim() } },
   });
@@ -113,17 +116,16 @@ const register = async (req, res, next) => {
     return res.send(400, {
       errors: [
         {
-          message: 'E-mail address or username is used!'
-        }
-      ]
+          message: 'E-mail address or username is used!',
+        },
+      ],
     });
   }
 
   const { salt: password_salt, hash: password_hash } = createSaltHashPassword(
-    password
+    password,
   );
-  const ip_address =
-    req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+  const ip_address = req.headers['x-forwarded-for'] || req.connection.remoteAddress;
   user = await models.user.create({
     username,
     email,
@@ -157,7 +159,7 @@ const emailConfirm = async (req, res, next) => {
       where: {
         token_value,
       },
-    }
+    },
   );
   if (email_confirmation_token) {
     await email_confirmation_token.confirmEmail();
@@ -194,11 +196,11 @@ const update = async (req, res, next) => {
         await models.user.update({
           username: newUsername,
         },
-          {
-            where: {
-              id: user.id,
-            },
-          });
+        {
+          where: {
+            id: user.id,
+          },
+        });
         res.status(200).send({
           message: 'Username updated saccesfully',
         });
@@ -206,9 +208,9 @@ const update = async (req, res, next) => {
         res.status(401).send({
           errors: [
             {
-              message: 'Password Not Correct!'
-            }
-          ]
+              message: 'Password Not Correct!',
+            },
+          ],
         });
       }
     }
@@ -219,7 +221,7 @@ const update = async (req, res, next) => {
     });
 
     const { salt: password_salt, hash: password_hash } = createSaltHashPassword(
-      newPassword
+      newPassword,
     );
 
     if (user) {
@@ -230,11 +232,11 @@ const update = async (req, res, next) => {
           password_hash,
           password_salt,
         },
-          {
-            where: {
-              id: user.id,
-            },
-          });
+        {
+          where: {
+            id: user.id,
+          },
+        });
         res.status(200).send({
           message: 'Password updated succesfully',
         });
@@ -242,9 +244,9 @@ const update = async (req, res, next) => {
         res.status(401).send({
           errors: [
             {
-              message: 'Password Not Correct!'
-            }
-          ]
+              message: 'Password Not Correct!',
+            },
+          ],
         });
       }
     }

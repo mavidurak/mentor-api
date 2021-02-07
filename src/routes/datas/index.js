@@ -28,9 +28,9 @@ const add = async (req, res, next) => {
     return res.status(400).send({
       errors: [
         {
-          message: err
-        }
-      ]
+          message: err,
+        },
+      ],
     });
   }
 
@@ -54,9 +54,9 @@ const getAll = async (req, res, next) => {
     return res.status(500).send({
       errors: [
         {
-          'message': err.message || 'Some error occurred while retrieving datas.'
-        }
-      ]
+          message: err.message || 'Some error occurred while retrieving datas.',
+        },
+      ],
     });
   }
 };
@@ -83,17 +83,17 @@ const detail = async (req, res, next) => {
     return res.send({
       errors: [
         {
-          message: `Error! No such data(id=${id}) or You don't have permission to see the this data`
-        }
-      ]
+          message: `Error! No such data(id=${id}) or You don't have permission to see the this data`,
+        },
+      ],
     });
   } catch (err) {
     return res.status(500).send({
       errors: [
         {
-          message: err.message || `Error retrieving Data with id=${id}`
-        }
-      ]
+          message: err.message || `Error retrieving Data with id=${id}`,
+        },
+      ],
     });
   }
 };
@@ -118,9 +118,9 @@ const update = async (req, res, next) => {
       return res.send({
         errors: [
           {
-            message: `Error find data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`
-          }
-        ]
+            message: `Error find data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`,
+          },
+        ],
       });
     }
 
@@ -135,17 +135,17 @@ const update = async (req, res, next) => {
     return res.send({
       errors: [
         {
-          message: `Error updating data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`
-        }
-      ]
+          message: `Error updating data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`,
+        },
+      ],
     });
   } catch (err) {
     return res.send({
       errors: [
         {
-          message: err.message
-        }
-      ]
+          message: err.message,
+        },
+      ],
     });
   }
 };
@@ -170,9 +170,9 @@ const deleteById = async (req, res, next) => {
       return res.send({
         errors: [
           {
-            message: `Error find data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`
-          }
-        ]
+            message: `Error find data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`,
+          },
+        ],
       });
     }
 
@@ -188,18 +188,18 @@ const deleteById = async (req, res, next) => {
       res.send({
         errors: [
           {
-            message: `Error deleye data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`
-          }
-        ]
+            message: `Error deleye data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`,
+          },
+        ],
       });
     }
   } catch (err) {
     return res.send({
       errors: [
         {
-          message: err.message
-        }
-      ]
+          message: err.message,
+        },
+      ],
     });
   }
 };
