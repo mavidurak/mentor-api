@@ -44,13 +44,12 @@ const create = async (req, res, next) => {
 
   if (dataSet) {
     const application = await models.applications.create(req.body);
-    await application.createToken();
     return res.status(201).send({
       application: application.toJSON(),
     });
   }
 
-  return res.status(400).send({
+  return res.status(403).send({
     errors: [
       {
         message: 'Application\'s data set not found or you do not have a permission!',
@@ -83,7 +82,7 @@ const detail = async (req, res, next) => {
     if (application) {
       res.send(application);
     } else {
-      res.status(401).send({
+      res.status(403).send({
         errors: [
           {
             message: 'Application not found or you do not have a permission!',
@@ -132,7 +131,7 @@ const update = async (req, res, next) => {
         application: application.toJSON(),
       });
     } else {
-      res.status(401).send({
+      res.status(403).send({
         errors: [
           {
             message: 'Application\'s data set not found or you do not have a permission!',
@@ -180,7 +179,7 @@ const deleteById = async (req, res, next) => {
       message: 'Application was deleted successfully!',
     });
   }
-  return res.status(401).send({
+  return res.status(403).send({
     errors: [
       {
         message: 'Application not found or you do not have a permission!',

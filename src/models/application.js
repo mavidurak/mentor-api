@@ -18,12 +18,12 @@ const applications = Sequelize.define(
     access_token: {
       type: DataTypes.STRING,
       allowNull: true,
-      defaultValue: null,
+      defaultValue: createToken(),
     },
     secret_token: {
       type: DataTypes.STRING,
       allowNull: true,
-      defaultValue: null,
+      defaultValue: createToken(),
     },
     permission_read: {
       type: DataTypes.BOOLEAN,
@@ -42,6 +42,18 @@ const applications = Sequelize.define(
   },
 );
 
+function createToken() {
+  const expired_at = new Date();
+  expired_at.setDate(new Date().getDate() + 30);
+  const timestamp = Math.round(new Date().getTime() / 1000);
+
+  const rand = () => Math.random(0).toString(36).substr(2);
+  const token = (length) => (rand() + rand() + rand() + rand()).substr(0, length);
+  const key = `${token(15)}_${timestamp}`;
+
+  return encrypt(key);
+}
+
 const initialize = (models) => {
   models.applications.belongsTo(models.data_sets, {
     as: 'data_sets',
@@ -50,19 +62,6 @@ const initialize = (models) => {
       allowNull: false,
     },
   });
-
-  models.applications.prototype.createToken = async function () {
-    const expired_at = new Date();
-    expired_at.setDate(new Date().getDate() + 30);
-    const timestamp = Math.round(new Date().getTime() / 1000);
-    const random = Math.floor(Math.random() * 999999);
-    const key = `${this.id}_${random}_${timestamp}`;
-
-    this.access_token = encrypt(key);
-    this.secret_token = encrypt(this.access_token);
-
-    await this.save();
-  };
 };
 
 export default {

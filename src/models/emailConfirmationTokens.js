@@ -1,9 +1,7 @@
 import { DataTypes } from 'sequelize';
-import models from '.';
 
 import Sequelize from '../sequelize';
 
-import { encrypt } from '../utils/encryption';
 
 const email_confirmation_token = Sequelize.define(
   'email_confirmation_token',
