@@ -22,9 +22,19 @@ export default async (req, res, next) => {
     if (data && data.user.is_email_confirmed) {
       req.user = data.user.toJSON();
     }
-  }
 
-  if (is_ignored || req.user) { return next(); }
+    if (is_ignored || req.user) { return next(); }
+
+    const appdata = await models.applications.findOne({
+      where: { access_token: token },
+    });
+    if (appdata) {
+      req.application = appdata.toJSON();
+      console.log(req.application.dataset_id);
+    }
+
+    if (is_ignored || req.application) { return next(); }
+  }
 
   res.send(
     401,
