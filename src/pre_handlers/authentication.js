@@ -22,18 +22,28 @@ export default async (req, res, next) => {
     if (data && data.user.is_email_confirmed) {
       req.user = data.user.toJSON();
     }
+  }
+  if (is_ignored || req.user) { return next(); }
 
-    if (is_ignored || req.user) { return next(); }
-
+  if (token) {
     const appdata = await models.applications.findOne({
       where: { access_token: token },
     });
     if (appdata) {
       req.application = appdata.toJSON();
-      console.log(req.application.dataset_id);
-    }
 
-    if (is_ignored || req.application) { return next(); }
+      if (req.application.permission_read === true && req.method === 'GET') {
+        console.log(req.data);
+        return next();
+      }
+      if (req.application.permission_write === true && req.method === 'POST') {
+        console.log(req.body);
+        return next();
+      }
+      if (req.application.permission_delete === true && req.method === 'DELETE') {
+        return next();
+      }
+    }
   }
 
   res.send(
