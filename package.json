@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "serve": "nodemon start",
+    "start": "nodemon start",
     "debug": "nodemon --inspect src/server --exec babel-node",
     "migrate": "./node_modules/.bin/sequelize db:migrate",
     "lint": "eslint .",
