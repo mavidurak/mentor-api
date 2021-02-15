@@ -82,6 +82,7 @@ const reSendConfirmEmail = async (req, res, next) => {
       });
     }
   }
+
   res.send(400, {
     errors: [
       {
@@ -167,7 +168,9 @@ const emailConfirm = async (req, res, next) => {
   return res.redirect(`${process.env.DASHBOARD_UI_PATH}/login`);
 };
 
+
 /// Update Methods ///
+
 
 const update_validation = {
   body: Joi.object({
@@ -189,7 +192,7 @@ const update = async (req, res, next) => {
     const user = await models.user.findOne({
       where: { id: req.user.id },
     });
-    // ----//
+
     if (user) {
       const hash = makeSha512(password, user.password_salt);
       if (hash === user.password_hash) {
