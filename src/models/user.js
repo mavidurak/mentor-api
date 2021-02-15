@@ -69,7 +69,7 @@ const initialize = (models) => {
     foreignKey: 'user_id',
     sourceKey: 'id',
   });
-=======
+
   models.user.hasMany(
     models.token, {
       as: 'user_tokens',
