@@ -118,7 +118,7 @@ const initialize = (models) => {
     );
     if (user_email_confirmation_token) {
       user_email_confirmation_token.status = token_status.CANCELLED;
-      await email_confirmation_token.save();
+      await user_email_confirmation_token.save();
     }
 
     const token_value = encrypt(key2);
