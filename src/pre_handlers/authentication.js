@@ -1,6 +1,27 @@
 import models from '../models';
 
-import { TOKEN_KEY, SECRET_KEY, WHITE_LIST } from '../constants/api';
+import {
+  TOKEN_KEY, SECRET_KEY, WHITE_LIST, APPLICATION_PERMISSION_LIST,
+} from '../constants/api';
+
+const findDiff = (expectedStr, reqStr) => {
+  const idRegex = new RegExp('[0-9]*[/]$');
+  let expectedDiff = '';
+  expectedStr.split('').forEach((val, i) => {
+    if (val !== reqStr.charAt(i)) expectedDiff += val;
+  });
+  let reqDiff = '';
+  reqStr.split('').forEach((val, i) => {
+    if (val !== expectedStr.charAt(i)) reqDiff += val;
+  });
+  if (expectedDiff === ':id' && idRegex.test(reqDiff)) {
+    return true;
+  }
+  if (expectedDiff === '' && reqDiff === '') {
+    return true;
+  }
+  return false;
+};
 
 export default async (req, res, next) => {
   const is_ignored = WHITE_LIST.findIndex(
@@ -21,30 +42,27 @@ export default async (req, res, next) => {
 
     if (data && data.user.is_email_confirmed) {
       req.user = data.user.toJSON();
-    }
-  }
-  if (is_ignored || req.user) { return next(); }
-
-  if (token) {
-    const appdata = await models.applications.findOne({
-      where: { access_token: token },
-    });
-    if (appdata) {
-      req.application = appdata.toJSON();
-
-      if (req.application.permission_read === true && req.method === 'GET') {
-        console.log(req.data);
-        return next();
-      }
-      if (req.application.permission_write === true && req.method === 'POST') {
-        console.log(req.body);
-        return next();
-      }
-      if (req.application.permission_delete === true && req.method === 'DELETE') {
-        return next();
+    } else {
+      const application = await models.applications.findOne({
+        where: { access_token: token },
+      });
+      if (application) {
+        const permissions = {
+          GET: application.permission_read,
+          POST: application.permission_write,
+          DELETE: application.permission_delete,
+        };
+        if (APPLICATION_PERMISSION_LIST.findIndex(
+          (x) => x.method === req.method
+          && findDiff(x.path, req.fixed_url)
+          && permissions[x.method] === true,
+        ) > -1) {
+          req.application = application.toJSON();
+        }
       }
     }
   }
+  if (is_ignored || req.user || req.application) { return next(); }
 
   res.send(
     401,
