@@ -1,7 +1,7 @@
 import Joi from 'joi'
 
-const schema = Joi.defaults((s) => {
-    return s.options({ abortEarly: false })
+const instance = Joi.defaults((s) => {
+  return s.options({ abortEarly: false })
 })
 
-export default schema
+export default instance
