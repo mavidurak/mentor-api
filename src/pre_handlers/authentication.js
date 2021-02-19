@@ -52,12 +52,10 @@ export default async (req, res, next) => {
           POST: application.permission_write,
           DELETE: application.permission_delete,
         };
-        if (APPLICATION_PERMISSION_LIST.findIndex(
-          (x) => x.method === req.method
-          && findDiff(x.path, req.fixed_url)
-          && permissions[x.method] === true,
-        ) > -1) {
-          req.application = application.toJSON();
+        if (permissions[req.method]) {
+          if (findDiff(APPLICATION_PERMISSION_LIST[req.method], req.fixed_url) === true) {
+            req.application = application.toJSON();
+          }
         }
       }
     }
