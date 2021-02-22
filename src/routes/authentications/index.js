@@ -1,4 +1,4 @@
-import Joi from 'joi';
+import Joi from '../../joi';
 import { Op } from 'sequelize';
 import { sendEmail, EmailTypes } from '../../utils/sendEmail';
 import models from '../../models';

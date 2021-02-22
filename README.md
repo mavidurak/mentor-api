@@ -9,9 +9,9 @@ cd mentor-api
 ```
 npm install
 ```
-## Serve
+## Start
 ```
-npm run serve
+npm start
 ```
 ## Migration
 ```
