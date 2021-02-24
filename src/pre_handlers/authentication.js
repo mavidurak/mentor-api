@@ -6,19 +6,21 @@ import {
 
 const findDiff = (expectedStr, reqStr) => {
   const idRegex = new RegExp('[0-9]*[/]$');
-  let expectedDiff = '';
-  expectedStr.split('').forEach((val, i) => {
-    if (val !== reqStr.charAt(i)) expectedDiff += val;
-  });
-  let reqDiff = '';
-  reqStr.split('').forEach((val, i) => {
-    if (val !== expectedStr.charAt(i)) reqDiff += val;
-  });
-  if (expectedDiff === ':id' && idRegex.test(reqDiff)) {
-    return true;
-  }
-  if (expectedDiff === '' && reqDiff === '') {
-    return true;
+  if (expectedStr && reqStr) {
+    let expectedDiff = '';
+    expectedStr.split('').forEach((val, i) => {
+      if (val !== reqStr.charAt(i)) expectedDiff += val;
+    });
+    let reqDiff = '';
+    reqStr.split('').forEach((val, i) => {
+      if (val !== expectedStr.charAt(i)) reqDiff += val;
+    });
+    if (expectedDiff === ':id' && idRegex.test(reqDiff)) {
+      return true;
+    }
+    if (expectedDiff === '' && reqDiff === '') {
+      return true;
+    }
   }
   return false;
 };
@@ -48,12 +50,13 @@ export default async (req, res, next) => {
       });
       if (application) {
         const permissions = {
-          GET: application.permission_read,
-          POST: application.permission_write,
-          DELETE: application.permission_delete,
+          get: application.permission_read,
+          post: application.permission_write,
+          delete: application.permission_delete,
         };
-        if (permissions[req.method]) {
-          if (findDiff(APPLICATION_PERMISSION_LIST[req.method], req.fixed_url) === true) {
+        if (permissions[req.method.toLowerCase()]) {
+          if (findDiff(APPLICATION_PERMISSION_LIST[req.method.toLowerCase()],
+            req.fixed_url.toLowerCase())) {
             req.application = application.toJSON();
           }
         }

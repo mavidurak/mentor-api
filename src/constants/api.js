@@ -4,9 +4,9 @@ export const WHITE_LIST = [
   '/authentications/register/',
 ];
 export const APPLICATION_PERMISSION_LIST = {
-  GET: '/datas/:id',
-  POST: '/datas/',
-  DELETE: '/datas/:id',
+  get: '/datas/:id',
+  post: '/datas/',
+  delete: '/datas/:id',
 };
 
 export const TOKEN_KEY = 'X-AccessToken';
