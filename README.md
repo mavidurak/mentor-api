@@ -17,6 +17,10 @@ npm start
 ```
 npm run migrate
 ```
+## Testdb Migration
+```
+NODE_ENV=test yarn run migrate
+```
 ## ESlint Fix
 ```
 npm run lint -- --fix
@@ -26,6 +30,7 @@ npm run lint -- --fix
 ```
 APP_PORT=4000
 DATABASE=mavidurak
+TEST_DATABASE=mavidurak_test
 DATABASE_USERNAME=root
 DATABASE_PASSWORD=
 DATABASE_HOST=localhost
