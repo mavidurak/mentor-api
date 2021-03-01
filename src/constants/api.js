@@ -3,6 +3,11 @@ export const WHITE_LIST = [
   '/authentications/email-confirmation/',
   '/authentications/register/',
 ];
+export const APPLICATION_PERMISSION_LIST = {
+  get: '/datas/:id',
+  post: '/datas/',
+  delete: '/datas/:id',
+};
 
 export const TOKEN_KEY = 'X-AccessToken';
 
