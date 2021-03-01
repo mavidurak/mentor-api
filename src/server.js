@@ -14,6 +14,10 @@ pre_handlers.forEach((middleware) => app.use(middleware));
 
 app.use(router);
 
+app.get('/api/health-check', (req, res) => {
+  return res.status(200).send('OK');
+})
+
 const server = app.listen(
   process.env.APP_PORT,
   () => {

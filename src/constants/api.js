@@ -2,6 +2,7 @@ export const WHITE_LIST = [
   '/authentications/login/',
   '/authentications/email-confirmation/',
   '/authentications/register/',
+  '/api/health-check/',
 ];
 export const APPLICATION_PERMISSION_LIST = {
   get: '/datas/:id',
