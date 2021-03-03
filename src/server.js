@@ -21,7 +21,7 @@ app.get('/api/health-check', (req, res) => {
 const server = app.listen(
   process.env.APP_PORT,
   () => {
-    console.log(`Application run at http://localhost:${process.env.APP_PORT}, NODE_ENV= ${process.env.NODE_ENV}`);
+    console.log(`Application run at http://localhost:${process.env.APP_PORT}, NODE_ENV=${process.env.NODE_ENV}`);
   },
 );
 module.exports= server;

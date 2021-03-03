@@ -1,6 +1,7 @@
 import Joi from '../../joi';
 import { Op } from 'sequelize';
-import { sendEmail, EmailTypes } from '../../utils/sendEmail';
+import { sendEmail } from '../../utils/sendEmail';
+import { EMAIL_TEMPLATE_TYPES, EMAIL_TOKEN_STATUS } from '../../constants/api'
 import models from '../../models';
 import {
   makeSha512, createSaltHashPassword, encrypt, b64Encode, b64Decode,
@@ -59,12 +60,19 @@ const login = async (req, res, next) => {
 const reSendConfirmEmail = async (req, res, next) => {
   const { error, value } = login_validation.body.validate(req.body);
   if (error) {
-    return res.status(400).send({ errors: error.details });
+    return res.status(400).send({
+      errors: error.details
+    });
   }
 
   const { username, password } = req.body;
   const user = await models.user.findOne({
-    where: { [Op.or]: { username: username.trim(), email: username.trim() } },
+    where: {
+      [Op.or]: {
+        username: username.trim(),
+        email: username.trim()
+      }
+    },
   });
 
   if (user) {
@@ -72,7 +80,7 @@ const reSendConfirmEmail = async (req, res, next) => {
     if (hash === user.password_hash) {
       if (user.is_email_confirmed !== true) {
         const emailToken = await user.createEmailConfirmationToken();
-        await sendEmail(user, emailToken);
+        await sendEmail(EMAIL_TEMPLATE_TYPES.CONFIRMATION, user, emailToken);
         return res.send(200, { message: 'Confirmation email sent.' });
       }
       return res.send(400, {
@@ -153,7 +161,7 @@ const register = async (req, res, next) => {
     user.is_email_confirmed = true;
     user.save();
   } else {
-    await sendEmail(user, emailToken);
+    await sendEmail(EMAIL_TEMPLATE_TYPES.CONFIRMATION, user, emailToken);
   }
 
   res.send(201, { user: user.toJSON(), token: token.toJSON() });
@@ -170,7 +178,7 @@ const emailConfirm = async (req, res, next) => {
       token_value,
     },
   });
-  if (email_confirmation_token) {
+  if (email_confirmation_token && email_confirmation_token.status === EMAIL_TOKEN_STATUS.PENDING) {
     await email_confirmation_token.confirmEmail();
   }
   return res.redirect(`${process.env.DASHBOARD_UI_PATH}/login`);
@@ -210,11 +218,11 @@ const update = async (req, res, next) => {
         await models.user.update({
           username: newUsername,
         },
-        {
-          where: {
-            id: user.id,
-          },
-        });
+          {
+            where: {
+              id: user.id,
+            },
+          });
         res.status(200).send({
           message: 'Username updated saccesfully',
         });
@@ -247,11 +255,11 @@ const update = async (req, res, next) => {
           password_hash,
           password_salt,
         },
-        {
-          where: {
-            id: user.id,
-          },
-        });
+          {
+            where: {
+              id: user.id,
+            },
+          });
         res.status(200).send({
           message: 'Password updated succesfully',
         });

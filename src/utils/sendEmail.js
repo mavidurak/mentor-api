@@ -1,12 +1,7 @@
 import nodemailer from 'nodemailer';
 import * as handlebars from 'handlebars';
 import * as fs from 'fs';
-
-export const EmailTypes = {
-  confirm: 'confirm',
-  forgotPassword: 'forgotPassword',
-  changeApplicationPermission: 'changeApplicationPermission',
-};
+import { EMAIL_TEMPLATE_TYPES } from '../constants/api'
 
 export const sendEmail = async (emailType, user, token) => {
   const email = {
@@ -16,10 +11,11 @@ export const sendEmail = async (emailType, user, token) => {
     content: null,
     buttonHref: null,
   };
-  let source; let template; let
-    replacements;
+
+  let source, template, replacements;
+
   switch (emailType) {
-    case 'confirm':
+    case EMAIL_TEMPLATE_TYPES.CONFIRMATION:
       email.subject = 'Welcome to MaviDurak-IO';
       email.buttonHref = `${process.env.API_PATH}/authentications/email-confirmation?token=${token}`;
       source = fs.readFileSync('src/templates/ConfirmationEmail.html', 'utf-8').toString();
@@ -30,7 +26,7 @@ export const sendEmail = async (emailType, user, token) => {
       };
       break;
 
-    case 'forgotPassword':
+    case EMAIL_TEMPLATE_TYPES.FORGOT_PASSWORD:
       email.subject = 'Reset your MaviDurak-IO account password';
       email.buttonHref = `${process.env.API_PATH}/authentications/forgot-password?token=${token}`;
       source = fs.readFileSync('src/templates/ForgotPasswordEmail.html', 'utf-8').toString();
@@ -39,11 +35,6 @@ export const sendEmail = async (emailType, user, token) => {
         username: user.name,
         href: email.buttonHref,
       };
-      break;
-
-    case 'changeApplicationPermission':
-      email.subject = 'Change yours application permissions';
-      email.buttonHref;
       break;
 
     default:
@@ -73,6 +64,5 @@ export const sendEmail = async (emailType, user, token) => {
 };
 
 export default {
-  sendEmail,
-  EmailTypes,
+  sendEmail
 };
