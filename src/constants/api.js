@@ -19,8 +19,8 @@ export const EMAIL_TEMPLATE_TYPES = {
 export const EMAIL_TOKEN_STATUS = {
   PENDING: 'PENDING',
   CANCELLED: 'CANCELLED',
-  CONFIRMED: 'CONFIRMED', 
-}
+  CONFIRMED: 'CONFIRMED',
+};
 
 export const TOKEN_KEY = 'X-AccessToken';
 

@@ -1,7 +1,7 @@
-import Joi from '../../joi';
 import { Op } from 'sequelize';
+import Joi from '../../joi';
 import { sendEmail } from '../../utils/sendEmail';
-import { EMAIL_TEMPLATE_TYPES, EMAIL_TOKEN_STATUS } from '../../constants/api'
+import { EMAIL_TEMPLATE_TYPES, EMAIL_TOKEN_STATUS } from '../../constants/api';
 import models from '../../models';
 import {
   makeSha512, createSaltHashPassword, encrypt, b64Encode, b64Decode,
@@ -61,7 +61,7 @@ const reSendConfirmEmail = async (req, res, next) => {
   const { error, value } = login_validation.body.validate(req.body);
   if (error) {
     return res.status(400).send({
-      errors: error.details
+      errors: error.details,
     });
   }
 
@@ -70,8 +70,8 @@ const reSendConfirmEmail = async (req, res, next) => {
     where: {
       [Op.or]: {
         username: username.trim(),
-        email: username.trim()
-      }
+        email: username.trim(),
+      },
     },
   });
 
@@ -172,7 +172,7 @@ const emailConfirm = async (req, res, next) => {
       status: EMAIL_TOKEN_STATUS.PENDING,
     },
   });
-  if ( email_confirmation_token ) {
+  if (email_confirmation_token) {
     await email_confirmation_token.confirmEmail();
   }
   return res.redirect(`${process.env.DASHBOARD_UI_PATH}/login`);
@@ -212,11 +212,11 @@ const update = async (req, res, next) => {
         await models.user.update({
           username: newUsername,
         },
-          {
-            where: {
-              id: user.id,
-            },
-          });
+        {
+          where: {
+            id: user.id,
+          },
+        });
         res.status(200).send({
           message: 'Username updated saccesfully',
         });
@@ -249,11 +249,11 @@ const update = async (req, res, next) => {
           password_hash,
           password_salt,
         },
-          {
-            where: {
-              id: user.id,
-            },
-          });
+        {
+          where: {
+            id: user.id,
+          },
+        });
         res.status(200).send({
           message: 'Password updated succesfully',
         });

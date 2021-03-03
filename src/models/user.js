@@ -14,7 +14,6 @@ import {
 
 import { EMAIL_TOKEN_STATUS } from '../constants/api';
 
-
 const user = Sequelize.define(
   'user', {
     username: {
@@ -122,11 +121,11 @@ const initialize = (models) => {
 
     await emailConfirmationToken.cancelOtherTokens();
 
-    if(!process.env.NODE_ENV || process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test'){
+    if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development' || process.env.NODE_ENV === 'test') {
       emailConfirmationToken.status = EMAIL_TOKEN_STATUS.CONFIRMED;
       await emailConfirmationToken.save();
     }
-    
+
     return emailConfirmationToken.token_value;
   };
 };

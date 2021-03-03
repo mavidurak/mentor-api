@@ -1,7 +1,5 @@
-import Joi from 'joi'
+import Joi from 'joi';
 
-const instance = Joi.defaults((s) => {
-  return s.options({ abortEarly: false })
-})
+const instance = Joi.defaults((s) => s.options({ abortEarly: false }));
 
-export default instance
+export default instance;

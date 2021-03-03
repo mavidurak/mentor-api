@@ -3,16 +3,15 @@ const request = require('supertest');
 const server = require('../server');
 const User = require('../models/user');
 
-/*import supertest from 'supertest';
-const request = supertest(process.env.BACKEND_PATH);*/
-
+/* import supertest from 'supertest';
+const request = supertest(process.env.BACKEND_PATH); */
 
 const user = {
-  username: "aaaa",
-  password: "aaaaaaaa",
-  email: "aaaa@hotmail.com",
-  name: "aaaa aaaa bbbb"
-}
+  username: 'aaaa',
+  password: 'aaaaaaaa',
+  email: 'aaaa@hotmail.com',
+  name: 'aaaa aaaa bbbb',
+};
 
 describe('Register', () => {
   it('New true user register', async () => {
@@ -22,11 +21,11 @@ describe('Register', () => {
         username: user.username,
         password: user.password,
         email: user.email,
-        name: user.name
-      })
+        name: user.name,
+      });
     expect(res.status).toBe(201);
-  })
-})
+  });
+});
 
 describe('Register', () => {
   it('Register error', async () => {
@@ -36,11 +35,11 @@ describe('Register', () => {
         username: user.username,
         password: user.password,
         email: user.email,
-        name: user.name
-      })
+        name: user.name,
+      });
     expect(res.status).toBe(400);
-  })
-})
+  });
+});
 
 describe('Login', () => {
   it('/authentications/login/', async () => {
@@ -49,8 +48,7 @@ describe('Login', () => {
       .send({
         username: user.username,
         password: user.password,
-      })
+      });
     expect(res.status).toBe(200);
-  })
-})
-
+  });
+});

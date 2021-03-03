@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import * as handlebars from 'handlebars';
 import * as fs from 'fs';
-import { EMAIL_TEMPLATE_TYPES } from '../constants/api'
+import { EMAIL_TEMPLATE_TYPES } from '../constants/api';
 
 export const sendEmail = async (emailType, user, token) => {
   const email = {
@@ -12,7 +12,8 @@ export const sendEmail = async (emailType, user, token) => {
     buttonHref: null,
   };
 
-  let source, template, replacements;
+  let source; let template; let
+    replacements;
 
   switch (emailType) {
     case EMAIL_TEMPLATE_TYPES.CONFIRMATION:
@@ -64,5 +65,5 @@ export const sendEmail = async (emailType, user, token) => {
 };
 
 export default {
-  sendEmail
+  sendEmail,
 };
