@@ -1,7 +1,8 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Op } from 'sequelize';
 
 import Sequelize from '../sequelize';
 import { EMAIL_TOKEN_STATUS } from '../constants/api'
+require('dotenv').config();
 
 const email_confirmation_token = Sequelize.define(
   'email_confirmation_token',
@@ -50,8 +51,12 @@ const initialize = (models) => {
   models.email_confirmation_token.prototype.cancelOtherTokens = async function () {
     const tokens = await models.email_confirmation_token.findAll({
       where: {
-        user_id: this.user_id,
-        status: EMAIL_TOKEN_STATUS.PENDING,
+        user_id: this.user_id, 
+        [Op.not]: [
+          {
+            status: EMAIL_TOKEN_STATUS.CANCELLED
+          }
+         ]
       }
     });
   

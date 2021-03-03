@@ -78,18 +78,11 @@ const reSendConfirmEmail = async (req, res, next) => {
   if (user) {
     const hash = makeSha512(password, user.password_salt);
     if (hash === user.password_hash) {
-      if (user.is_email_confirmed !== true) {
-        const emailToken = await user.createEmailConfirmationToken();
-        await sendEmail(EMAIL_TEMPLATE_TYPES.CONFIRMATION, user, emailToken);
-        return res.send(200, { message: 'Confirmation email sent.' });
-      }
-      return res.send(400, {
-        errors: [
-          {
-            message: 'User email already confirmed!',
-          },
-        ],
-      });
+      const emailToken = await user.createEmailConfirmationToken();
+      user.is_email_confirmed = false;
+      await user.save();
+      await sendEmail(EMAIL_TEMPLATE_TYPES.CONFIRMATION, user, emailToken);
+      return res.send(200, { message: 'Confirmation email sent.' });
     }
   }
 
@@ -176,9 +169,10 @@ const emailConfirm = async (req, res, next) => {
   const email_confirmation_token = await models.email_confirmation_token.findOne({
     where: {
       token_value,
+      status: EMAIL_TOKEN_STATUS.PENDING,
     },
   });
-  if (email_confirmation_token && email_confirmation_token.status === EMAIL_TOKEN_STATUS.PENDING) {
+  if ( email_confirmation_token ) {
     await email_confirmation_token.confirmEmail();
   }
   return res.redirect(`${process.env.DASHBOARD_UI_PATH}/login`);
