@@ -1,7 +1,7 @@
-import { DataTypes } from 'sequelize';
+import { DataTypes, Op } from 'sequelize';
 
 import Sequelize from '../sequelize';
-
+import { EMAIL_TOKEN_STATUS } from '../constants/api';
 
 const email_confirmation_token = Sequelize.define(
   'email_confirmation_token',
@@ -9,6 +9,10 @@ const email_confirmation_token = Sequelize.define(
     token_value: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    status: {
+      type: DataTypes.STRING,
+      defaultValue: EMAIL_TOKEN_STATUS.PENDING,
     },
   },
   {
@@ -37,7 +41,23 @@ const initialize = (models) => {
     }
     user.is_email_confirmed = true;
     await user.save();
+    this.status = EMAIL_TOKEN_STATUS.CONFIRMED;
+    this.save();
+    this.cancelOtherTokens();
     return true;
+  };
+
+  models.email_confirmation_token.prototype.cancelOtherTokens = async function () {
+    await models.email_confirmation_token.update({
+      status: EMAIL_TOKEN_STATUS.CANCELLED
+    },{
+      where: {
+        user_id: this.user_id,
+        id: {
+          [Op.ne]: this.id
+        }
+      },
+    });
   };
 };
 

@@ -1,6 +1,7 @@
-import Joi from '../../joi';
 import { Op } from 'sequelize';
-import { sendEmail, EmailTypes } from '../../utils/sendEmail';
+import Joi from '../../joi';
+import { sendEmail } from '../../utils/sendEmail';
+import { EMAIL_TEMPLATE_TYPES, EMAIL_TOKEN_STATUS } from '../../constants/api';
 import models from '../../models';
 import {
   makeSha512, createSaltHashPassword, encrypt, b64Encode, b64Decode,
@@ -59,29 +60,29 @@ const login = async (req, res, next) => {
 const reSendConfirmEmail = async (req, res, next) => {
   const { error, value } = login_validation.body.validate(req.body);
   if (error) {
-    return res.status(400).send({ errors: error.details });
+    return res.status(400).send({
+      errors: error.details,
+    });
   }
 
   const { username, password } = req.body;
   const user = await models.user.findOne({
-    where: { [Op.or]: { username: username.trim(), email: username.trim() } },
+    where: {
+      [Op.or]: {
+        username: username.trim(),
+        email: username.trim(),
+      },
+    },
   });
 
   if (user) {
     const hash = makeSha512(password, user.password_salt);
     if (hash === user.password_hash) {
-      if (user.is_email_confirmed !== true) {
-        const emailToken = await user.createEmailConfirmationToken();
-        await sendEmail(user, emailToken);
-        return res.send(200, { message: 'Confirmation email sent.' });
-      }
-      return res.send(400, {
-        errors: [
-          {
-            message: 'User email already confirmed!',
-          },
-        ],
-      });
+      const emailToken = await user.createEmailConfirmationToken();
+      user.is_email_confirmed = false;
+      await user.save();
+      await sendEmail(EMAIL_TEMPLATE_TYPES.CONFIRMATION, user, emailToken);
+      return res.send(200, { message: 'Confirmation email sent.' });
     }
   }
 
@@ -153,7 +154,7 @@ const register = async (req, res, next) => {
     user.is_email_confirmed = true;
     user.save();
   } else {
-    await sendEmail(user, emailToken);
+    await sendEmail(EMAIL_TEMPLATE_TYPES.CONFIRMATION, user, emailToken);
   }
 
   res.send(201, { user: user.toJSON(), token: token.toJSON() });
@@ -168,6 +169,7 @@ const emailConfirm = async (req, res, next) => {
   const email_confirmation_token = await models.email_confirmation_token.findOne({
     where: {
       token_value,
+      status: EMAIL_TOKEN_STATUS.PENDING,
     },
   });
   if (email_confirmation_token) {
