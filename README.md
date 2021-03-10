@@ -19,7 +19,7 @@ npm run migrate
 ```
 ## Testdb Migration
 ```
-NODE_ENV=test yarn run migrate
+NODE_ENV=test npm run migrate
 ```
 ## ESlint Fix
 ```
