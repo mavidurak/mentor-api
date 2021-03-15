@@ -1,0 +1,28 @@
+FROM node:current-alpine
+
+ARG PORT=4000
+
+ENV NODE_ENV="development"
+ENV PORT=$PORT
+ENV APP_PORT=4000
+ENV DATABASE=mavidurak
+ENV TEST_DATABASE=mavidurak_test
+ENV DATABASE_USERNAME=newuser
+ENV DATABASE_PASSWORD=ads345
+ENV DATABASE_HOST=localhost
+ENV BACKEND_PATH=http://localhost:4000
+ENV FRONTEND_PATH=http://localhost:8080
+ENV EMAIL_HOST=smtp.elasticemail.com
+ENV EMAIL_PORT=2525
+ENV EMAIL_USER=mcyilmaz14@gmail.com
+ENV EMAIL_PASSWORD=C56966A309975C14DCE4A898FC1650F48CDD
+
+WORKDIR srv/mentor-api
+
+COPY ./ ./
+
+RUN yarn
+
+EXPOSE 4000
+
+CMD ["yarn","start"]
