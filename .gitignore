@@ -103,6 +103,6 @@ dist
 # TernJS port file
 .tern-port
 
-#swap
+# Vim swap files
 *.swp
 *.swap
