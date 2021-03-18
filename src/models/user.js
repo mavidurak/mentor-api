@@ -1,5 +1,3 @@
-import util from 'util';
-
 import { DataTypes, DATE } from 'sequelize';
 
 import Sequelize from '../sequelize';

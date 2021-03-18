@@ -1,18 +1,18 @@
 FROM node:15.10.0-alpine3.10
 
 # environment variables
-ENV APP_PORT=4000 \
-    DATABASE=mentorApi \
-    DATABASE_USERNAME=root \
-    DATABASE_PASSWORD=123456 \
-    DATABASE_HOST=localhost \
-    API_PATH=http://localhost:4000 \
-    DASHBOARD_UI_PATH=http://localhost:8080 \
-    EMAIL_HOST=smtp.gmail.com \
-    EMAIL_PORT=465 \
-    EMAIL_SECURE=true \
-    EMAIL_USER= \
-    EMAIL_PASSWORD=
+ENV APP_PORT=4000
+ENV DATABASE=mentorApi
+ENV DATABASE_USERNAME=root
+ENV DATABASE_PASSWORD=123456
+ENV DATABASE_HOST=localhost
+ENV API_PATH=http://localhost:4000
+ENV DASHBOARD_UI_PATH=http://localhost:8080
+ENV EMAIL_HOST=smtp.gmail.com
+ENV EMAIL_PORT=465
+ENV EMAIL_SECURE=true
+ENV EMAIL_USER=
+ENV EMAIL_PASSWORD=
 
 # create project directory 
 RUN mkdir -p /usr/src/mentor-api
@@ -29,4 +29,4 @@ COPY . .
 #RUN npm run migrate
 
 EXPOSE 4000
-CMD ["npm","start"]
+CMD ["npm","start:migrate"]
