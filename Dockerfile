@@ -1,7 +1,11 @@
 FROM node:15.10.0-alpine3.10
 
+ARG node_env=development
+ARG app_port=4000
+
 # environment variables
-ENV APP_PORT=4000
+ENV NODE_ENV=$node_env
+ENV APP_PORT=$app_port
 ENV DATABASE=mentorApi
 ENV DATABASE_USERNAME=root
 ENV DATABASE_PASSWORD=123456
@@ -15,18 +19,13 @@ ENV EMAIL_USER=
 ENV EMAIL_PASSWORD=
 
 # create project directory 
-RUN mkdir -p /usr/src/mentor-api
 WORKDIR /usr/src/mentor-api
-
-# install dependencies
-COPY package*.json ./
-RUN npm install
 
 # bundle app source
 COPY . .
 
-# migrate the database
-#RUN npm run migrate
+# install dependencies
+RUN npm install
 
-EXPOSE 4000
-CMD ["npm","start:migrate"]
+EXPOSE $app_port
+CMD ["npm", "run", "start:migrate"]
