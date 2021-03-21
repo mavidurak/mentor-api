@@ -1,6 +1,6 @@
 FROM node:15.10.0-alpine3.10
 
-ARG node_env=development
+ARG node_env=production
 ARG app_port=4000
 
 # environment variables
@@ -25,7 +25,7 @@ WORKDIR /usr/src/mentor-api
 COPY . .
 
 # install dependencies
-RUN npm install
+RUN npm install --production=false
 
 EXPOSE $app_port
 CMD ["npm", "run", "start:migrate"]
