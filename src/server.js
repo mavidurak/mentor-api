@@ -1,4 +1,4 @@
-//import 'dotenv/config';
+import 'dotenv/config';
 import express from 'express';
 import body_parser from 'body-parser';
 import cors from 'cors';

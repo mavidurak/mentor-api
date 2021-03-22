@@ -1,8 +1,9 @@
 FROM node:current-alpine
 
+ARG NODE_ENV=production
 ARG PORT=4000
 
-ENV NODE_ENV="development"
+ENV NODE_ENV=$NODE_ENV
 ENV PORT=$PORT
 ENV APP_PORT=4000
 ENV DATABASE=mavidurak
@@ -21,8 +22,8 @@ WORKDIR srv/mentor-api
 
 COPY ./ ./
 
-RUN yarn
+RUN npm install --production=false
 
 EXPOSE 4000
 
-CMD ["yarn","start"]
+CMD ["npm","run","start:migrate"]

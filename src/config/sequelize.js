@@ -1,4 +1,4 @@
-const database = process.env.NODE_ENV === 'test' ? process.env.TEST_DATABASE : process.env.DATABASE;
+const database = process.env.DATABASE;
 const username = process.env.DATABASE_USERNAME;
 const password = process.env.DATABASE_PASSWORD;
 const host = process.env.DATABASE_HOST;
