@@ -7,7 +7,6 @@ const create_validation = {
       .required(),
     title: Joi.string()
       .min(2)
-      .alphanum()
       .max(40)
       .required(),
     description: Joi.string()
