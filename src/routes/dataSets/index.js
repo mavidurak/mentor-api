@@ -5,15 +5,10 @@ const create_validation = {
   body: Joi.object({
     title: Joi.string()
       .min(2)
-      .alphanum()
       .max(40)
       .required(),
     data_type: Joi.string()
-      .min(2)
-      .max(30)
-      .required(),
-    description: Joi.string()
-      .min(2)
+      .min(1)
       .max(30)
       .required(),
   }),
@@ -32,7 +27,6 @@ const create = async (req, res, next) => {
       user_id,
       title,
       data_type,
-      description,
     },
   });
 
@@ -169,7 +163,6 @@ const deleteById = async (req, res, next) => {
       id,
     },
   });
-
   if (dataSet) {
     if (user_id === dataSet.user_id) {
       models.data_sets.destroy({
@@ -180,24 +173,15 @@ const deleteById = async (req, res, next) => {
       res.send({
         message: 'Data set was deleted successfully!',
       });
-    } else {
-      res.status(401).send({
-        errors: [
-          {
-            message: 'You DO NOT have permision to delete this Data set!',
-          },
-        ],
-      });
     }
-
-    dataSet.catch((err) => {
-      res.status(500).send({
-        errors: [
-          {
-            message: err.message,
-          },
-        ],
-      });
+  }
+  else {
+    res.status(401).send({
+      errors: [
+        {
+          message: 'You DO NOT have permision to delete this Data set!',
+        },
+      ],
     });
   }
 };
