@@ -36,7 +36,7 @@ WORKDIR /usr/src/mentor-api
 COPY . .
 
 # install dependencies
-RUN npm install
+RUN NODE_ENV=development npm install
 
 EXPOSE $app_port
 CMD ["npm", "run", "start:migrate"]
