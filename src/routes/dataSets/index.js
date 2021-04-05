@@ -5,7 +5,6 @@ const create_validation = {
   body: Joi.object({
     title: Joi.string()
       .min(2)
-      .alphanum()
       .max(40)
       .required(),
     data_type: Joi.string()
