@@ -226,7 +226,7 @@ const deleteById = async (req, res, next) => {
       res.send({
         errors: [
           {
-            message: `Error delete data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`,
+            message: `Error deleting data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`,
           },
         ],
       });
