@@ -4,7 +4,12 @@ import models from '../../models';
 
 const create_validation = {
   body: Joi.object({
-    dataset_id: Joi.required(),
+    dataset_id: Joi
+      .number()
+      .required(),
+    application_id: Joi
+      .number()
+      .empty(),
     value: Joi.required(),
   }),
 };
@@ -16,12 +21,49 @@ const add = async (req, res, next) => {
     return res.send(400, { errors: error.details });
   }
 
-  const { dataset_id, value } = req.body;
+  const { dataset_id, application_id, value } = req.body;
   let data;
+
+  const dataset = await models.data_sets.findOne({
+    where: {
+      id: dataset_id,
+      user_id: req.user.id,
+    },
+  });
+
+  if (!dataset) {
+    return res.status(400).send({
+      errors: [
+        {
+          message: 'Data set not found or you don\'t have permission!',
+        },
+      ],
+    });
+  }
+
+  if (application_id) {
+    const application = await models.applications.findOne({
+      where: {
+        id: application_id,
+        dataset_id: dataset.id,
+      },
+    });
+    console.log({ application_id, dataset_id: dataset.id, application });
+    if (!application) {
+      return res.status(400).send({
+        errors: [
+          {
+            message: 'Application not found or you don\'t have permission!',
+          },
+        ],
+      });
+    }
+  }
 
   try {
     data = await models.datas.create({
       dataset_id,
+      application_id,
       value,
     });
   } catch (err) {
@@ -34,7 +76,7 @@ const add = async (req, res, next) => {
     });
   }
 
-  res.send(201, { data: data.toJSON() });
+  return res.send(201, { data: data.toJSON() });
 };
 
 const getAll = async (req, res, next) => {
@@ -45,7 +87,7 @@ const getAll = async (req, res, next) => {
       where: { dataset_id },
     });
 
-    if (data.length == 0) {
+    if (data.length === 0) {
       return res.send({ result: [], count: 0 });
     }
 
@@ -128,7 +170,7 @@ const update = async (req, res, next) => {
       where: { id },
     });
 
-    if (num == 1) {
+    if (num === 1) {
       return res.send({ message: `Id= ${id} was updated saccesfully` });
     }
 
@@ -180,19 +222,19 @@ const deleteById = async (req, res, next) => {
       where: { id },
     });
 
-    if (num == 1) {
-      res.send({
-        message: 'Data was deleted successfully!',
-      });
-    } else {
+    if (num !== 1) {
       res.send({
         errors: [
           {
-            message: `Error deleye data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`,
+            message: `Error delete data with id=${id}.No such data(id=${id}) or You don't have permission to see the this data`,
           },
         ],
       });
     }
+
+    return res.send({
+      message: 'Data was deleted successfully!',
+    });
   } catch (err) {
     return res.send({
       errors: [
@@ -207,9 +249,9 @@ const deleteById = async (req, res, next) => {
 export default {
   prefix: '/datas',
   inject: (router) => {
+    router.post('/', add);
     router.get('/:id', getAll);
     router.get('/details/:id', detail);
-    router.post('/', add);
     router.put('/update', update);
     router.delete('/:id', deleteById);
   },

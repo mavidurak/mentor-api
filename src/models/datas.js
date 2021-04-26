@@ -5,11 +5,9 @@ import Sequelize from '../sequelize';
 const datas = Sequelize.define(
   'datas',
   {
-
     value: {
       type: DataTypes.DOUBLE,
     },
-
   },
   {
     timestamps: true,
@@ -23,6 +21,13 @@ const initialize = (models) => {
     foreignKey: {
       name: 'dataset_id',
       allowNull: false,
+    },
+  });
+  models.datas.belongsTo(models.applications, {
+    as: 'applications',
+    foreignKey: {
+      name: 'application_id',
+      allowNull: true,
     },
   });
 };
