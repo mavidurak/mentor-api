@@ -3,8 +3,10 @@ import models from '../../models';
 
 const create_validation = {
   body: Joi.object({
-    dataset_id: Joi.number()
-      .required(),
+    dataset_ids: Joi.array()
+      .min(1)
+      .required()
+      .items(Joi.number()),
     title: Joi.string()
       .min(2)
       .max(40)
@@ -22,6 +24,7 @@ const create_validation = {
   }),
 };
 
+//Create
 const create = async (req, res, next) => {
   const user_id = req.user.id;
   const {
@@ -34,24 +37,29 @@ const create = async (req, res, next) => {
     });
   }
 
-  const dataSet = await models.data_sets.findOne({
+  const dataSets = await models.data_sets.findAll({
     where: {
-      id: req.body.dataset_id,
-      user_id,
+      id: req.body.dataset_ids,
+      user_id
     },
   });
 
-  if (dataSet) {
-    const application = await models.applications.create(req.body);
+  console.log(dataSets.length)
+  console.log(req.body.dataset_ids.length)
+  if (dataSets.length===req.body.dataset_ids.length) {
+    const application = await models.applications.create(req.body)
+    const app=await application.setDatasets(dataSets)
+    console.log(app)
     return res.status(201).send({
       application: application.toJSON(),
+      app:app
     });
   }
 
   return res.status(403).send({
     errors: [
       {
-        message: 'Application\'s data set not found or you do not have a permission!',
+        message: 'Application\'s some data set not found or you do not have a permission!',
       },
     ],
   });
