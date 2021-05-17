@@ -15,13 +15,13 @@
       through:'application_datasets',
       foreignKey:'application_id',
       otherKey:'dataset_id',
-      as:'Datasets'
+      as:'data_sets'
     });
     models.data_sets.belongsToMany(models.applications, {
       through:'application_datasets',
       foreignKey:'dataset_id',
       otherKey:'application_id',
-      as:'Applications'
+      as:'applications'
       });
   };
   

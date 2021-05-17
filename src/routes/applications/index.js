@@ -44,16 +44,25 @@ const create = async (req, res, next) => {
     },
   });
 
-  console.log(dataSets.length)
-  console.log(req.body.dataset_ids.length)
   if (dataSets.length===req.body.dataset_ids.length) {
+    try{
+
+    
     const application = await models.applications.create(req.body)
-    const app=await application.setDatasets(dataSets)
-    console.log(app)
+    const app=await application.setData_sets(dataSets)
     return res.status(201).send({
       application: application.toJSON(),
       app:app
     });
+    }catch (err) {
+      res.status(500).send({
+        errors: [
+          {
+            message: err.message || `Error retrieving application with id= ${id}`,
+          },
+        ],
+      });
+    }
   }
 
   return res.status(403).send({
@@ -76,7 +85,7 @@ const detail = async (req, res, next) => {
       where: {
         id,
       },
-      include: [{
+     include: [{
         model: models.data_sets,
         as: 'data_sets',
         where: {
