@@ -123,6 +123,12 @@ const update = async (req, res, next) => {
   } = req.params;
   const user_id = req.user.id;
   try {
+    const dataSets = await models.data_sets.findAll({
+      where: {
+        id: req.body.dataset_ids,
+        user_id
+      },
+    });
     const application = await models.applications.findOne({
       where: {
         id,
@@ -143,8 +149,9 @@ const update = async (req, res, next) => {
           id: application.id,
         },
       });
-      res.send({
-        application: application.toJSON(),
+      await application.setData_sets(dataSets);
+      res.status(200).send({
+        message: `Id= ${id} was updated succesfully`,
       });
     } else {
       res.status(403).send({
@@ -186,6 +193,7 @@ const deleteById = async (req, res, next) => {
   });
 
   if (application) {
+    await application.setData_sets([]);
     await models.applications.destroy({
       where: {
         id,
