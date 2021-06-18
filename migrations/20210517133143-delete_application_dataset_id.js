@@ -29,7 +29,7 @@ module.exports = {
         'dataset_id',
         { transaction },
       );
-      await queryInterface.addConstraint('datas', {
+      await queryInterface.addConstraint('applications', {
         fields: ['dataset_id'],
         type: 'foreign key',
         name: 'applications_ibfk_1',
