@@ -116,24 +116,12 @@ const detail = async (req, res, next) => {
     });
   }
 };
-
-const update = async (req, res, next) => {
-  const {
-    id,
-  } = req.params;
+const list = async (req, res, next) => {
+  
   const user_id = req.user.id;
   try {
-    const dataSets = await models.data_sets.findAll({
-      where: {
-        id: req.body.dataset_ids,
-        user_id
-      },
-    });
-    const application = await models.applications.findOne({
-      where: {
-        id,
-      },
-      include: [{
+    const application = await models.applications.findAndCountAll({
+     include: [{
         model: models.data_sets,
         as: 'data_sets',
         where: {
@@ -144,12 +132,47 @@ const update = async (req, res, next) => {
     });
 
     if (application) {
+      res.send({
+        results: application.rows,
+        count: application.count,
+      });
+    } else {
+      res.status(403).send({
+        errors: [
+          {
+            message: 'Application not found or you do not have a permission!',
+          },
+        ],
+      });
+    }
+  } catch (err) {
+    res.status(500).send({
+      errors: [
+        {
+          message: err.message || `Error retrieving application with id= ${id}`,
+        },
+      ],
+    });
+  }
+};
+
+const update = async (req, res, next) => {
+  const {
+    id,
+  } = req.params;
+  const user_id = req.user.id;
+  try {
+    const application = await models.applications.findOne({
+      where: {
+        id,
+      }
+    });
+    if (application) {
       await models.applications.update(req.body, {
         where: {
           id: application.id,
         },
       });
-      await application.setData_sets(dataSets);
       res.status(200).send({
         message: `Id= ${id} was updated succesfully`,
       });
@@ -217,6 +240,7 @@ export default {
   inject: (router) => {
     router.post('/', create);
     router.get('/:id', detail);
+    router.get('/', list);
     router.put('/:id', update);
     router.delete('/:id', deleteById);
   },
