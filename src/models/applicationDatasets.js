@@ -1,5 +1,8 @@
 
   import Sequelize from '../sequelize';
+  import {
+    DataTypes,
+  } from 'sequelize';
   
   const applicationDatasets = Sequelize.define(
     'application_datasets', {},

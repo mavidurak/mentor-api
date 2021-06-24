@@ -36,7 +36,7 @@ const create = async (req, res, next) => {
     },
   });
 
-  if (dataSets&&applications) {
+  if (dataSets && applications) {
     try{
     	const appDataset = await models.application_datasets.create(req.body)
     	return res.status(201).send({
@@ -64,27 +64,28 @@ const create = async (req, res, next) => {
 
 const list = async (req, res, next) => {
   const {
-    id,
+    applicationId,
   } = req.params;
   const user_id = req.user.id;
   try {
-    const dataSets = await models.application_datasets.findAndCountAll({
+    const applicationDatasets = await models.application_datasets.findAndCountAll({
         where: {
-          application_id: id
+          application_id: applicationId
         },
-				include: {
-					model: models.data_sets,
-					as: 'data_set',
-					where: {
-						user_id,
-					},
-					required: true,
-				},
+        include: {
+          model: models.data_sets,
+          as: 'data_set',
+          where: {
+            user_id,
+          },
+          required: true,
+        },
+        attributes: ['id','application_id','dataset_id'],
       });
-    if (dataSets) {
+    if (applicationDatasets) {
       res.send({
-        result: dataSets.rows,
-				count:dataSets.count
+        result: applicationDatasets.rows,
+				count:applicationDatasets.count
       });
     } else {
       res.status(403).send({
@@ -105,9 +106,9 @@ const list = async (req, res, next) => {
     });
   }
 };
-const addablesforapp = async (req, res, next) => {
+const unavaibleApplicationDatasets = async (req, res, next) => {
   const {
-    id,
+    applicationId,
   } = req.params;
   const user_id = req.user.id;
   try {
@@ -118,22 +119,22 @@ const addablesforapp = async (req, res, next) => {
     });
     const appDatasets = await models.application_datasets.findAll({
         where: {
-          application_id: id
+          application_id: applicationId
         },
-				include: {
-					model: models.data_sets,
-					as: 'data_set',
-					where: {
-						user_id,
-					},
-					required: true,
-				},
+        include: {
+          model: models.data_sets,
+          as: 'data_set',
+          where: {
+            user_id,
+          },
+          required: true,
+        },
       });
 		const results = dataSets.filter(dataSet=>!appDatasets.some(ds=>ds.dataset_id===dataSet.id))
 		
     if (dataSets) {
       res.send({
-        results: Object.values(results).map(result => ({ id: result.id, key: result.title })),
+        results: results.map(result => ({ id: result.id, key: result.title })),
       });
     } else {
       res.status(403).send({
@@ -156,43 +157,37 @@ const addablesforapp = async (req, res, next) => {
 };
 
 const deleteById = async (req, res, next) => {
-  const {
-    appId,
-		datasetId
-  } = req.params;
-  const user_id = req.user.id;
-  const appDataset = await models.application_datasets.findOne({
+  const { id } = req.params;
+  const applicationDataset = await models.application_datasets.findOne({
     where: {
-      application_id:appId,
-			dataset_id:datasetId
+      id
     },
   });
-  if (appDataset) {
+  if (applicationDataset) {
     await models.application_datasets.destroy({
       where: {
-				application_id:appId,
-				dataset_id:datasetId
+				id
       },
     });
     res.send({
-      message: 'Application was deleted successfully!',
+      message: 'Application Datatset was deleted successfully!',
     });
   }
   return res.status(403).send({
     errors: [
       {
-        message: 'Application not found or you do not have a permission!',
+        message: 'Application Dataset not found or you do not have a permission!',
       },
     ],
   });
 };
 
 export default {
-  prefix: '/appdatasets',
+  prefix: '/application-datasets',
   inject: (router) => {
     router.post('/', create);
-    router.get('/app/:id', list);
-		router.get('/addablesforapp/:id',addablesforapp)
-    router.delete('/:appId/:datasetId', deleteById);
+    router.get('/:applicationId', list);
+		router.get('/unavaible-application-datasets/:applicationId',unavaibleApplicationDatasets)
+    router.delete('/:id', deleteById);
   },
 };

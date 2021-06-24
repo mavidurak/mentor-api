@@ -4,10 +4,14 @@ module.exports = {
   up: async (queryInterface, Sequelize) => {
     return queryInterface.createTable(
       'application_datasets', {
-
+        id: {
+          allowNull: false,
+          autoIncrement: true,
+          primaryKey: true,
+          type: Sequelize.INTEGER,
+        },
         dataset_id: {
           type: Sequelize.INTEGER,
-          primaryKey: true,
           allowNull: false,
           references: {
             model: 'data_sets',
@@ -18,7 +22,6 @@ module.exports = {
         },
         application_id: {
           type: Sequelize.INTEGER,
-          primaryKey: true,
           allowNull: false,
           references: {
             model: 'applications',
@@ -33,9 +36,6 @@ module.exports = {
         },
         updated_at: {
           allowNull: false,
-          type: Sequelize.DATE,
-        },
-        deleted_at: {
           type: Sequelize.DATE,
         },
       },

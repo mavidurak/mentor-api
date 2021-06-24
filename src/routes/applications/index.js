@@ -46,14 +46,12 @@ const create = async (req, res, next) => {
 
   if (dataSets.length===req.body.dataset_ids.length) {
     try{
-
-    
-    const application = await models.applications.create(req.body)
-    const app=await application.setData_sets(dataSets)
-    return res.status(201).send({
-      application: application.toJSON(),
-      app:app
-    });
+      const application = await models.applications.create(req.body)
+      const app=await application.setData_sets(dataSets)
+      return res.status(201).send({
+        application: application.toJSON(),
+        app:app
+      });
     }catch (err) {
       res.status(500).send({
         errors: [
