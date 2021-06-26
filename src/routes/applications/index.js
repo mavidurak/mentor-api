@@ -37,6 +37,7 @@ const create = async (req, res, next) => {
     });
   }
 
+  //Find all datasets
   const dataSets = await models.data_sets.findAll({
     where: {
       id: req.body.dataset_ids,
@@ -44,13 +45,20 @@ const create = async (req, res, next) => {
     },
   });
 
+  //If all given datasets available
   if (dataSets.length===req.body.dataset_ids.length) {
+    //Prepare dataset ids array seqeulize for create process.
+    req.body.application_datasets=req.body.dataset_ids.map(di=>({dataset_id:di}))
     try{
-      const application = await models.applications.create(req.body)
-      const app=await application.setData_sets(dataSets)
+      //Create application with dataset connections
+      const application = await models.applications.create(req.body,{
+        include: [{
+          model:models.application_datasets
+        }]
+      })
+      //After create send data for debug. At live it is not required
       return res.status(201).send({
-        application: application.toJSON(),
-        app:app
+        application: application.toJSON()
       });
     }catch (err) {
       res.status(500).send({
@@ -62,7 +70,6 @@ const create = async (req, res, next) => {
       });
     }
   }
-
   return res.status(403).send({
     errors: [
       {
@@ -114,18 +121,20 @@ const detail = async (req, res, next) => {
     });
   }
 };
+
+
 const list = async (req, res, next) => {
-  
-  const user_id = req.user.id;
+
   try {
     const application = await models.applications.findAndCountAll({
      include: [{
-        model: models.data_sets,
-        as: 'data_sets',
-        where: {
-          user_id,
-        },
-        required: true,
+        model: models.application_datasets,
+        as: 'application_datasets',
+        attributes:['id'],
+        include:[{
+          model:models.data_sets,
+          attributes:['id','title','data_type']
+        }]
       }],
     });
 
@@ -154,11 +163,35 @@ const list = async (req, res, next) => {
   }
 };
 
+const update_validation = {
+  body: Joi.object({
+    title: Joi.string()
+      .min(2)
+      .max(40),
+    description: Joi.string()
+      .min(2)
+      .max(30),
+    permission_read: Joi.boolean(),
+    permission_write: Joi.boolean(),
+    permission_delete: Joi.boolean(),
+  }),
+};
+
 const update = async (req, res, next) => {
   const {
     id,
   } = req.params;
-  const user_id = req.user.id;
+
+  const {
+    error,
+    value,
+  } = update_validation.body.validate(req.body);
+  if (error) {
+    return res.send(400, {
+      errors: error,
+    });
+  }
+
   try {
     const application = await models.applications.findOne({
       where: {
@@ -198,24 +231,23 @@ const deleteById = async (req, res, next) => {
   const {
     id,
   } = req.params;
-  const user_id = req.user.id;
+  
+  //Find only applicaition. Because cascade not working correctly due to one is paranoid the other is not
   const application = await models.applications.findOne({
     where: {
       id,
     },
-    include: [{
-      model: models.data_sets,
-      as: 'data_sets',
-      where: {
-        user_id,
-      },
-      required: true,
-    }],
   });
 
   if (application) {
-    await application.setData_sets([]);
-    await models.applications.destroy({
+    //Destroy connections
+    await models.application_datasets.destroy({
+      where:{
+        application_id:id
+      }
+    })
+    //Destroy application in paranoid way
+    const values = await models.applications.destroy({
       where: {
         id,
       },
@@ -223,6 +255,7 @@ const deleteById = async (req, res, next) => {
     res.send({
       message: 'Application was deleted successfully!',
     });
+    console.log(values)
   }
   return res.status(403).send({
     errors: [
@@ -237,8 +270,8 @@ export default {
   prefix: '/applications',
   inject: (router) => {
     router.post('/', create);
-    router.get('/:id', detail);
     router.get('/', list);
+    router.get('/:id', detail);
     router.put('/:id', update);
     router.delete('/:id', deleteById);
   },

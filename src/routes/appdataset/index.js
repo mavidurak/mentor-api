@@ -12,7 +12,7 @@ const create_validation = {
   }),
 };
 
-//Create
+
 const create = async (req, res, next) => {
   const {
     error,
@@ -24,12 +24,13 @@ const create = async (req, res, next) => {
     });
   }
 
+  //Check if dataset is available
   const dataSets = await models.data_sets.findOne({
     where: {
       id: req.body.dataset_id,
     },
   });
-
+  //Check if application is available
 	const applications = await models.applications.findOne({
     where: {
       id: req.body.application_id,
@@ -40,7 +41,7 @@ const create = async (req, res, next) => {
     try{
     	const appDataset = await models.application_datasets.create(req.body)
     	return res.status(201).send({
-    	  applicationDataset: appDataset.toJSON(),
+    	  application_dataset: appDataset.toJSON(),
     	});
     }catch (err) {
       res.status(500).send({
@@ -68,6 +69,7 @@ const list = async (req, res, next) => {
   } = req.params;
   const user_id = req.user.id;
   try {
+    //Get applicationDatasets with dataset
     const applicationDatasets = await models.application_datasets.findAndCountAll({
         where: {
           application_id: applicationId
@@ -75,9 +77,6 @@ const list = async (req, res, next) => {
         include: {
           model: models.data_sets,
           as: 'data_set',
-          where: {
-            user_id,
-          },
           required: true,
         },
         attributes: ['id','application_id','dataset_id'],
@@ -112,11 +111,14 @@ const unavaibleApplicationDatasets = async (req, res, next) => {
   } = req.params;
   const user_id = req.user.id;
   try {
+    //Find user's datasets
 		const dataSets = await models.data_sets.findAll({
       where: {
         user_id: req.user.id,
       },
     });
+    
+    //Find connected datasets
     const appDatasets = await models.application_datasets.findAll({
         where: {
           application_id: applicationId
@@ -124,16 +126,16 @@ const unavaibleApplicationDatasets = async (req, res, next) => {
         include: {
           model: models.data_sets,
           as: 'data_set',
-          where: {
-            user_id,
-          },
           required: true,
         },
       });
+
+    //Return not connected datasets
 		const results = dataSets.filter(dataSet=>!appDatasets.some(ds=>ds.dataset_id===dataSet.id))
 		
     if (dataSets) {
       res.send({
+        //Map and send for vue multiselect
         results: results.map(result => ({ id: result.id, key: result.title })),
       });
     } else {
@@ -158,6 +160,7 @@ const unavaibleApplicationDatasets = async (req, res, next) => {
 
 const deleteById = async (req, res, next) => {
   const { id } = req.params;
+  //Control availability
   const applicationDataset = await models.application_datasets.findOne({
     where: {
       id
