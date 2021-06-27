@@ -240,7 +240,7 @@ const deleteById = async (req, res, next) => {
   });
 
   if (application) {
-    //Destroy connections
+    //Destroy application dataset connections
     await models.application_datasets.destroy({
       where:{
         application_id:id
