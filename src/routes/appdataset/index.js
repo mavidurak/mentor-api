@@ -31,7 +31,7 @@ const create = async (req, res, next) => {
     },
   });
   //Check if application is available
-	const applications = await models.applications.findOne({
+  const applications = await models.applications.findOne({
     where: {
       id: req.body.application_id,
     },
@@ -112,7 +112,7 @@ const unavaibleApplicationDatasets = async (req, res, next) => {
   const user_id = req.user.id;
   try {
     //Find user's datasets
-		const dataSets = await models.data_sets.findAll({
+    const dataSets = await models.data_sets.findAll({
       where: {
         user_id: req.user.id,
       },
@@ -131,7 +131,7 @@ const unavaibleApplicationDatasets = async (req, res, next) => {
       });
 
     //Return not connected datasets
-		const results = dataSets.filter(dataSet=>!appDatasets.some(ds=>ds.dataset_id===dataSet.id))
+    const results = dataSets.filter(dataSet=>!appDatasets.some(ds=>ds.dataset_id===dataSet.id))
 		
     if (dataSets) {
       res.send({
@@ -169,7 +169,7 @@ const deleteById = async (req, res, next) => {
   if (applicationDataset) {
     await models.application_datasets.destroy({
       where: {
-				id
+        id
       },
     });
     res.send({
@@ -190,7 +190,7 @@ export default {
   inject: (router) => {
     router.post('/', create);
     router.get('/:applicationId', list);
-		router.get('/unavaible-application-datasets/:applicationId',unavaibleApplicationDatasets)
+    router.get('/unavaible-application-datasets/:applicationId',unavaibleApplicationDatasets)
     router.delete('/:id', deleteById);
   },
 };
