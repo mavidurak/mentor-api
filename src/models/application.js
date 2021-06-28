@@ -62,6 +62,14 @@ const initialize = (models) => {
       allowNull: false,
     },
   });
+
+  models.applications.hasMany(
+    models.locations, {
+      as: 'locations',
+      foreignKey: 'application_id',
+      sourceKey: 'id',
+    },
+  );
 };
 
 export default {

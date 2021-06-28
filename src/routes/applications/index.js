@@ -19,6 +19,14 @@ const create_validation = {
       .required(),
     permission_delete: Joi.boolean()
       .required(),
+    longitude: Joi.number()
+      .min(-180)
+      .max(180)
+      .required(),
+    latitude: Joi.number()
+      .min(-90)
+      .max(90)
+      .required(),
   }),
 };
 
@@ -42,9 +50,16 @@ const create = async (req, res, next) => {
   });
 
   if (dataSet) {
+    const { longitude, latitude } = req.body;
     const application = await models.applications.create(req.body);
+    const location = await models.locations.create({
+      application_id: application.id,
+      longitude,
+      latitude,
+    });
     return res.status(201).send({
       application: application.toJSON(),
+      location,
     });
   }
 
@@ -73,6 +88,13 @@ const detail = async (req, res, next) => {
         as: 'data_sets',
         where: {
           user_id,
+        },
+        required: true,
+      }, {
+        model: models.locations,
+        as: 'locations',
+        where: {
+          application_id: id,
         },
         required: true,
       }],
@@ -117,6 +139,13 @@ const update = async (req, res, next) => {
           user_id,
         },
         required: true,
+      }, {
+        model: models.locations,
+        as: 'locations',
+        where: {
+          application_id: id,
+        },
+        required: true,
       }],
     });
 
@@ -126,6 +155,22 @@ const update = async (req, res, next) => {
           id: application.id,
         },
       });
+      const { longitude, latitude } = req.body;
+      if (longitude || latitude) {
+        await models.locations.update({
+          leave_at: Date.now(),
+        },{
+          where: {
+            id: application.locations[application.locations.length - 1].dataValues.id,
+          }
+        });
+
+        await models.locations.create({
+          application_id: application.id,
+          longitude,
+          latitude,
+        });
+      }
       res.send({
         application: application.toJSON(),
       });
