@@ -125,7 +125,7 @@ const detail = async (req, res, next) => {
 const list = async (req, res, next) => {
 
   try {
-    const application = await models.applications.findAndCountAll({
+    const applications = await models.applications.findAndCountAll({
      include: [{
         model: models.application_datasets,
         as: 'application_datasets',
@@ -137,10 +137,10 @@ const list = async (req, res, next) => {
       }],
     });
 
-    if (application) {
+    if (applications) {
       res.send({
-        results: application.rows,
-        count: application.count,
+        results: applications.rows,
+        count: applications.count,
       });
     } else {
       res.status(403).send({
