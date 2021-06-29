@@ -108,7 +108,6 @@ const unavaibleApplicationDatasets = async (req, res, next) => {
   const {
     applicationId,
   } = req.params;
-  const user_id = req.user.id;
   try {
     //Find user's datasets
     const dataSets = await models.data_sets.findAll({
@@ -118,7 +117,7 @@ const unavaibleApplicationDatasets = async (req, res, next) => {
     });
     
     //Find connected datasets
-    const appDatasets = await models.application_datasets.findAll({
+    const applicationDatasets = await models.application_datasets.findAll({
         where: {
           application_id: applicationId
         },
@@ -130,7 +129,7 @@ const unavaibleApplicationDatasets = async (req, res, next) => {
       });
 
     //Return not connected datasets
-    const results = dataSets.filter(dataSet=>!appDatasets.some(ds=>ds.dataset_id===dataSet.id))
+    const results = dataSets.filter(dataSet=>!applicationDatasets.some(ds=>ds.dataset_id===dataSet.id))
 		
     if (dataSets) {
       res.send({
