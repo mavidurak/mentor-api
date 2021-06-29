@@ -39,9 +39,9 @@ const create = async (req, res, next) => {
 
   if (dataSets && applications) {
     try{
-    	const appDataset = await models.application_datasets.create(req.body)
+    	const applicationDataset = await models.application_datasets.create(req.body)
     	return res.status(201).send({
-    	  application_dataset: appDataset.toJSON(),
+    	  application_dataset: applicationDataset.toJSON(),
     	});
     }catch (err) {
       res.status(500).send({
@@ -67,7 +67,6 @@ const list = async (req, res, next) => {
   const {
     applicationId,
   } = req.params;
-  const user_id = req.user.id;
   try {
     //Get applicationDatasets with dataset
     const applicationDatasets = await models.application_datasets.findAndCountAll({
