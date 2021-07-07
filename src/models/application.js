@@ -54,7 +54,9 @@ function createToken() {
   return encrypt(key);
 }
 
-const initialize = (models) => {};
+const initialize = (models) => {
+  models.applications.hasMany(models.application_datasets,{foreignKey: 'application_id'});
+};
 
 export default {
   model: applications,
