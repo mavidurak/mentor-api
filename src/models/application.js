@@ -62,6 +62,15 @@ const initialize = (models) => {
       allowNull: false,
     },
   });
+
+  models.applications.belongsToMany(models.datas, {
+    as: 'datas',
+    through: "application_data",
+    foreignKey: {
+      name: 'data_id',
+      allowNull: true,
+    },
+  });
 };
 
 export default {

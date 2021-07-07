@@ -23,8 +23,10 @@ const initialize = (models) => {
       allowNull: false,
     },
   });
-  models.datas.belongsTo(models.applications, {
+
+  models.datas.belongsToMany(models.applications, {
     as: 'applications',
+    through: "application_data",
     foreignKey: {
       name: 'application_id',
       allowNull: true,

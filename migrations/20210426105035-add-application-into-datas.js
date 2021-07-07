@@ -1,15 +1,35 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    queryInterface.addColumn('datas', 'application_id', {
-      type: Sequelize.INTEGER,
-      allowNull: true,
-      references: {
-        model: 'applications',
-        key: 'id',
-      },
-      onUpdate: 'cascade',
-      onDelete: 'cascade',
-    });
+    return queryInterface.createTable(
+      'application_data',
+      {
+        application_id: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          references: {
+            model: 'applications',
+            key: 'id',
+          },
+        },
+        data_id: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          references: {
+            model: 'datas',
+            key: 'id',
+          },
+        },      
+        created_at: {
+          allowNull: false,
+          type: Sequelize.DATE,
+        },
+        updated_at: {
+          type: Sequelize.DATE,
+        },
+        deleted_at: {
+          type: Sequelize.DATE,
+        },
+      });
   },
-  down: async (queryInterface) => queryInterface.removeColumn('datas', 'application_id'),
+  down: async (queryInterface) => queryInterface.dropTable('application_data'),
 };

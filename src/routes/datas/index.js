@@ -22,7 +22,7 @@ const add = async (req, res, next) => {
   }
 
   const { dataset_id, application_id, value } = req.body;
-  let data;
+  let data, application;
 
   const dataset = await models.data_sets.findOne({
     where: {
@@ -42,13 +42,13 @@ const add = async (req, res, next) => {
   }
 
   if (application_id) {
-    const application = await models.applications.findOne({
+    application = await models.applications.findOne({
       where: {
         id: application_id,
         dataset_id: dataset.id,
       },
     });
-    console.log({ application_id, dataset_id: dataset.id, application });
+    //console.log({ application_id, dataset_id: dataset.id, application });
     if (!application) {
       return res.status(400).send({
         errors: [
@@ -63,8 +63,12 @@ const add = async (req, res, next) => {
   try {
     data = await models.datas.create({
       dataset_id,
-      application_id,
       value,
+    });
+
+    await models.application_data.create({
+      application_id: application.id,
+      data_id: data.id,
     });
   } catch (err) {
     return res.status(400).send({
