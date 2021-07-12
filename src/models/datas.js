@@ -2,6 +2,7 @@ import { DataTypes } from 'sequelize';
 
 import Sequelize from '../sequelize';
 
+
 const datas = Sequelize.define(
   'datas',
   {
