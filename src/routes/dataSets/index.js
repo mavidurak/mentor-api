@@ -39,7 +39,7 @@ const create = async (req, res, next) => {
     description,
   });
 
-  res.send(201, {
+  return res.send(201, {
     dataSet: dataSet.toJSON(),
   });
 };
@@ -176,8 +176,7 @@ const deleteById = async (req, res, next) => {
         message: 'Data set was deleted successfully!',
       });
     }
-  }
-  else {
+  } else {
     res.status(401).send({
       errors: [
         {
