@@ -55,7 +55,27 @@ function createToken() {
 }
 
 const initialize = (models) => {
-  models.applications.hasMany(models.application_datasets,{foreignKey: 'application_id'});
+
+  models.applications.belongsTo(models.data_sets, {
+    as: 'data_sets',
+    foreignKey: {
+      name: 'dataset_id',
+      allowNull: false,
+    },
+  });
+
+  models.applications.hasMany(
+    models.locations, {
+      as: 'locations',
+      foreignKey: 'application_id',
+      sourceKey: 'id',
+    },
+  );
+
+  models.applications.hasMany(models.application_datasets, {
+    foreignKey: 'application_id'
+  });
+
 };
 
 export default {

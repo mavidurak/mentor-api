@@ -21,6 +21,14 @@ const create_validation = {
       .required(),
     permission_delete: Joi.boolean()
       .required(),
+    longitude: Joi.number()
+      .min(-180)
+      .max(180)
+      .required(),
+    latitude: Joi.number()
+      .min(-90)
+      .max(90)
+      .required(),
   }),
 };
 
@@ -55,9 +63,18 @@ const create = async (req, res, next) => {
           model:models.application_datasets
         }]
       })
+      
+      const { longitude, latitude } = req.body;     
+      const location = await models.locations.create({
+        application_id: application.id,
+        longitude,
+        latitude,
+      });
+
       //After create send data for debug. At live it is not required
       return res.status(201).send({
-        application: application.toJSON()
+        application: application.toJSON(),
+        location,
       });
     }catch (err) {
       res.status(500).send({
@@ -95,6 +112,13 @@ const detail = async (req, res, next) => {
         as: 'data_sets',
         where: {
           user_id,
+        },
+        required: true,
+      }, {
+        model: models.locations,
+        as: 'locations',
+        where: {
+          application_id: id,
         },
         required: true,
       }],
@@ -195,7 +219,22 @@ const update = async (req, res, next) => {
     const application = await models.applications.findOne({
       where: {
         id,
-      }
+      },
+      include: [{
+        model: models.data_sets,
+        as: 'data_sets',
+        where: {
+          user_id,
+        },
+        required: true,
+      }, {
+        model: models.locations,
+        as: 'locations',
+        where: {
+          application_id: id,
+        },
+        required: true,
+      }],
     });
 
     if (application) {
@@ -204,7 +243,25 @@ const update = async (req, res, next) => {
           id: application.id,
         },
       });
-      res.status(200).send({
+
+      const { longitude, latitude } = req.body;
+      if (longitude || latitude) {
+        await models.locations.update({
+          leave_at: Date.now(),
+        },{
+          where: {
+            id: application.locations[application.locations.length - 1].dataValues.id,
+          }
+        });
+
+        await models.locations.create({
+          application_id: application.id,
+          longitude,
+          latitude,
+        });
+      }
+
+      return res.status(200).send({
         message: `Id= ${id} was updated succesfully`,
       });
     } else {
