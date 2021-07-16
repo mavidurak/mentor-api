@@ -104,6 +104,57 @@ const list = async (req, res, next) => {
     });
   }
 };
+const unavaibleApplicationDatasets = async (req, res, next) => {
+  const {
+    applicationId,
+  } = req.params;
+  try {
+    //Find user's datasets
+    const dataSets = await models.data_sets.findAll({
+      where: {
+        user_id: req.user.id,
+      },
+    });
+    
+    //Find connected datasets
+    const applicationDatasets = await models.application_datasets.findAll({
+        where: {
+          application_id: applicationId
+        },
+        include: {
+          model: models.data_sets,
+          as: 'data_set',
+          required: true,
+        },
+      });
+
+    //Return not connected datasets
+    const results = dataSets.filter(dataSet=>!applicationDatasets.some(ds=>ds.dataset_id===dataSet.id))
+		
+    if (dataSets) {
+      res.send({
+        //Map and send for vue multiselect
+        results: results.map(result => ({ id: result.id, key: result.title })),
+      });
+    } else {
+      res.status(403).send({
+        errors: [
+          {
+            message: 'Application not found or you do not have a permission!',
+          },
+        ],
+      });
+    }
+  } catch (err) {
+    res.status(500).send({
+      errors: [
+        {
+          message: err.message || `Error retrieving application with id= ${id}`,
+        },
+      ],
+    });
+  }
+};
 
 const deleteById = async (req, res, next) => {
   const { id } = req.params;
@@ -137,6 +188,7 @@ export default {
   inject: (router) => {
     router.post('/', create);
     router.get('/:applicationId', list);
+    router.get('/unavaible-application-datasets/:applicationId',unavaibleApplicationDatasets)
     router.delete('/:id', deleteById);
   },
 };
