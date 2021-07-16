@@ -122,6 +122,46 @@ const detail = async (req, res, next) => {
   }
 };
 
+const list = async (req, res, next) => {
+
+  try {
+    const applications = await models.applications.findAndCountAll({
+     include: [{
+        model: models.application_datasets,
+        as: 'application_datasets',
+        attributes:['id'],
+        include:[{
+          model:models.data_sets,
+          attributes:['id','title','data_type']
+        }]
+      }],
+    });
+
+    if (applications) {
+      res.send({
+        results: applications.rows,
+        count: applications.count,
+      });
+    } else {
+      res.status(403).send({
+        errors: [
+          {
+            message: 'Application not found or you do not have a permission!',
+          },
+        ],
+      });
+    }
+  } catch (err) {
+    res.status(500).send({
+      errors: [
+        {
+          message: err.message || `Error retrieving application with id= ${id}`,
+        },
+      ],
+    });
+  }
+};
+
 const update_validation = {
   body: Joi.object({
     title: Joi.string()
@@ -230,6 +270,7 @@ export default {
   prefix: '/applications',
   inject: (router) => {
     router.post('/', create);
+    router.get('/', list);
     router.get('/:id', detail);
     router.put('/:id', update);
     router.delete('/:id', deleteById);
