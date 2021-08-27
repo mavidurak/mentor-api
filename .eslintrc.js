@@ -4,6 +4,7 @@ module.exports = {
     node: true,
     'jest/globals': true,
   },
+  plugins: ['jest'],
   extends: [
     'airbnb-base',
   ],

@@ -176,8 +176,7 @@ const deleteById = async (req, res, next) => {
         message: 'Data set was deleted successfully!',
       });
     }
-  }
-  else {
+  } else {
     res.status(401).send({
       errors: [
         {

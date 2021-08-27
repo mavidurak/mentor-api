@@ -49,13 +49,13 @@ const initialize = (models) => {
 
   models.email_confirmation_token.prototype.cancelOtherTokens = async function () {
     await models.email_confirmation_token.update({
-      status: EMAIL_TOKEN_STATUS.CANCELLED
-    },{
+      status: EMAIL_TOKEN_STATUS.CANCELLED,
+    }, {
       where: {
         user_id: this.user_id,
         id: {
-          [Op.ne]: this.id
-        }
+          [Op.ne]: this.id,
+        },
       },
     });
   };

@@ -1,13 +1,11 @@
-'use strict';
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     const transaction = await queryInterface.sequelize.transaction();
     try {
       await queryInterface.removeConstraint(
         'applications',
-         'applications_ibfk_1',
-         {transaction}
+        'applications_ibfk_1',
+        { transaction },
       );
       await queryInterface.removeColumn(
         'applications',
@@ -15,7 +13,7 @@ module.exports = {
         transaction,
       );
       return transaction.commit();
-    }catch (error) {
+    } catch (error) {
       await transaction.rollback();
       throw error;
     }
@@ -44,5 +42,5 @@ module.exports = {
       await transaction.rollback();
       throw error;
     }
-  }
+  },
 };

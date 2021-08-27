@@ -189,7 +189,8 @@ const update_validation = {
       .max(30),
     password: Joi.string()
       .min(3)
-      .max(30),
+      .max(30)
+      .required(),
   }),
 };
 
@@ -201,72 +202,76 @@ const update = async (req, res, next) => {
 
   const { newUsername, password, newPassword } = req.body;
 
-  if (newUsername) {
+  try {
     const user = await models.user.findOne({
-      where: { id: req.user.id },
+      where: {
+        id: req.user.id,
+      },
     });
 
-    if (user) {
-      const hash = makeSha512(password, user.password_salt);
-      if (hash === user.password_hash) {
-        await models.user.update({
+    if (!user) {
+      return res.send(401, {
+        errors: [
+          {
+            message: 'User not found or you dont have a permission!',
+          },
+        ],
+      });
+    }
+
+    const hash = makeSha512(password, user.password_salt);
+    if (user.password_hash !== hash) {
+      return res.status(401).send({
+        errors: [
+          {
+            message: 'Password Not Correct!',
+          },
+        ],
+      });
+    }
+
+    if (newUsername) {
+      const isUsernameExist = await models.user.findOne({
+        where: {
           username: newUsername,
         },
-        {
-          where: {
-            id: user.id,
-          },
-        });
-        res.status(200).send({
-          message: 'Username updated saccesfully',
-        });
-      } else {
-        res.status(401).send({
+      });
+
+      if (isUsernameExist) {
+        return res.send(400, {
           errors: [
             {
-              message: 'Password Not Correct!',
+              message: 'Username already using!',
             },
           ],
         });
       }
+      user.username = newUsername;
     }
-  }
-  if (newPassword) {
-    const user = await models.user.findOne({
-      where: { id: req.user.id },
+
+    if (newPassword) {
+      const {
+        salt: password_salt,
+        hash: password_hash,
+      } = createSaltHashPassword(newPassword);
+
+      user.password_hash = password_hash;
+      user.password_salt = password_salt;
+    }
+
+    await user.save();
+
+    return res.send(200, {
+      message: 'User updated saccesfully',
     });
-
-    const {
-      salt: password_salt,
-      hash: password_hash,
-    } = createSaltHashPassword(newPassword);
-
-    if (user) {
-      const hash = makeSha512(password, user.password_salt);
-
-      if (hash === user.password_hash) {
-        await models.user.update({
-          password_hash,
-          password_salt,
-        },
+  } catch (err) {
+    return res.send(500, {
+      errors: [
         {
-          where: {
-            id: user.id,
-          },
-        });
-        res.status(200).send({
-          message: 'Password updated succesfully',
-        });
-      } else {
-        res.status(401).send({
-          errors: [
-            {
-              message: 'Password Not Correct!',
-            },
-          ],
-        });
-      }
-    }
+          message: err.toString(),
+        },
+      ],
+    });
   }
 };
 
