@@ -157,7 +157,7 @@ const register = async (req, res, next) => {
     await sendEmail(EMAIL_TEMPLATE_TYPES.CONFIRMATION, user, emailToken);
   }
 
-  res.send(201, { user: user.toJSON(), token: token.toJSON() });
+  res.send(201);
 };
 
 const me = (req, res, next) => {
