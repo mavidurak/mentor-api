@@ -158,6 +158,11 @@ const list = async (req, res, next) => {
           model:models.data_sets,
           attributes:['id','title','data_type']
         }]
+      },
+      {
+        model:models.locations,
+        as:"locations",
+        attributes:['longitude','latitude']
       }],
     });
 
