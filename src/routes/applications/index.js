@@ -96,6 +96,35 @@ const create = async (req, res, next) => {
   });
 };
 
+const options = async (req,res,next) =>{
+  try {
+    const applications = await models.applications.findAndCountAll();
+
+    if (applications) {
+      res.send({
+        results: applications.rows,
+        count: applications.count,
+      });
+    } else {
+      res.status(403).send({
+        errors: [
+          {
+            message: 'Application not found or you do not have a permission!',
+          },
+        ],
+      });
+    }
+  } catch (err) {
+    res.status(500).send({
+      errors: [
+        {
+          message: err.message || `Error retrieving application with id= ${id}`,
+        },
+      ],
+    });
+  }
+}
+
 const detail = async (req, res, next) => {
   const {
     id,
@@ -333,6 +362,7 @@ export default {
   inject: (router) => {
     router.post('/', create);
     router.get('/', list);
+    router.get('/options', options);
     router.get('/:id', detail);
     router.put('/:id', update);
     router.delete('/:id', deleteById);
