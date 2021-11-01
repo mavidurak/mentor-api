@@ -51,7 +51,6 @@ const create = async (req, res, next) => {
       user_id,
     },
   });
-  console.log(user_id)
   req.body.user_id=user_id
   //If all given datasets available
   if (dataSets.length===req.body.dataset_ids.length) {
@@ -59,7 +58,6 @@ const create = async (req, res, next) => {
     req.body.application_datasets=req.body.dataset_ids.map(di=>({dataset_id:di}))
     try{
       //Create application with dataset connections
-      console.log(req.body)
       const application = await models.applications.create(req.body,{
         include: [{
           model:models.application_datasets
