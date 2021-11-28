@@ -125,6 +125,54 @@ const options = async (req,res,next) =>{
   }
 }
 
+const datasetOptions = async (req,res,next) =>{
+  try {
+    const applications = await models.applications.findOne({
+      where:{
+        id: req.params.id
+      },
+      include: [{
+        model: models.application_datasets,
+        as: 'application_datasets',
+        attributes:['id'],
+        include:{
+          model:models.data_sets,
+          attributes:[
+            'id',
+            'title',
+            'data_type',
+            'description',
+            'created_at',
+            'updated_at'
+          ]
+        }
+      }],
+    });
+
+    if (applications) {
+      res.send({
+        results: applications,
+      });
+    } else {
+      res.status(403).send({
+        errors: [
+          {
+            message: 'Application not found or you do not have a permission!',
+          },
+        ],
+      });
+    }
+  } catch (err) {
+    res.status(500).send({
+      errors: [
+        {
+          message: err.message || `Error retrieving application with id= ${id}`,
+        },
+      ],
+    });
+  }
+}
+
 const detail = async (req, res, next) => {
   const {
     id,
@@ -363,6 +411,7 @@ export default {
     router.post('/', create);
     router.get('/', list);
     router.get('/options', options);
+    router.get('/dataset-options/:id', datasetOptions);
     router.get('/:id', detail);
     router.put('/:id', update);
     router.delete('/:id', deleteById);
