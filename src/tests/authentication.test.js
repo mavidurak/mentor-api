@@ -13,7 +13,7 @@ const user = {
 let token = {};
 
 const usernameAndPasswordTest = (path) => {
-  it('Password is required', async () => {
+  it('Client should get 400 when request doesn\'t has password', async () => {
     const res = await request(server)
       .post(path)
       .send({
@@ -24,43 +24,7 @@ const usernameAndPasswordTest = (path) => {
     expect(res.status).toBe(400);
   });
 
-  it('Password must be at least 8 character.', async () => {
-    const res = await request(server)
-      .post(path)
-      .send({
-        username: user.username,
-        password: 'a',
-        email: user.email,
-        name: user.name,
-      });
-    expect(res.status).toBe(400);
-  });
-
-  it('Password must be no more than 30 characters', async () => {
-    const res = await request(server)
-      .post(path)
-      .send({
-        username: user.username,
-        password: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        email: user.email,
-        name: user.name,
-      });
-    expect(res.status).toBe(400);
-  });
-
-  it('Username must be at least 3 character', async () => {
-    const res = await request(server)
-      .post(path)
-      .send({
-        username: 'a',
-        password: user.password,
-        email: user.email,
-        name: user.name,
-      });
-    expect(res.status).toBe(400);
-  });
-
-  it('Username is required', async () => {
+  it('Client should get 400 when request doesn\'t has username', async () => {
     const res = await request(server)
       .post(path)
       .send({
@@ -70,37 +34,12 @@ const usernameAndPasswordTest = (path) => {
       });
     expect(res.status).toBe(400);
   });
-
-  it('Username must be no more than 30 characters', async () => {
-    const res = await request(server)
-      .post(path)
-      .send({
-        username: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        password: user.password,
-        email: user.email,
-        name: user.name,
-      });
-    expect(res.status).toBe(400);
-  });
-
-  it('Username must be alphanum', async () => {
-    const res = await request(server)
-      .post(path)
-      .send({
-        username: 'asdas-*/½+',
-        password: user.password,
-        email: user.email,
-        name: user.name,
-      });
-    expect(res.status).toBe(400);
-  });
-};
-
+}
 // Register fonctions test
 describe('Register', () => {
   usernameAndPasswordTest('/authentications/register');
 
-  it('Email must be email format', async () => {
+  it('Clients email must be valid email format', async () => {
     const res = await request(server)
       .post('/authentications/register')
       .send({
@@ -113,19 +52,7 @@ describe('Register', () => {
       .toBe('"email" must be a valid email');
   });
 
-  it('Name must be no more than 30 characters', async () => {
-    const res = await request(server)
-      .post('/authentications/register')
-      .send({
-        username: user.username,
-        password: user.password,
-        email: user.email,
-        name: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-      });
-    expect(res.status).toBe(400);
-  });
-
-  it('Name is required', async () => {
+  it('Client should get 400 when request doesn\'t has name', async () => {
     const res = await request(server)
       .post('/authentications/register')
       .send({
@@ -136,7 +63,7 @@ describe('Register', () => {
     expect(res.status).toBe(400);
   });
 
-  it('New valid user register', async () => {
+  it('Client should get 201 when register successfully', async () => {
     const res = await request(server)
       .post('/authentications/register')
       .send({
@@ -149,7 +76,7 @@ describe('Register', () => {
     expect(res.status).toBe(201);
   });
 
-  it('Email must be unique', async () => {
+  it('Clients email must be unique', async () => {
     const res = await request(server)
       .post('/authentications/register')
       .send({
@@ -162,7 +89,7 @@ describe('Register', () => {
       .toBe('E-mail address or username is used!');
   });
 
-  it('Username must be unique', async () => {
+  it('Clients username must be unique', async () => {
     const res = await request(server)
       .post('/authentications/register')
       .send({
@@ -180,7 +107,7 @@ describe('Register', () => {
 describe('Login', () => {
   usernameAndPasswordTest('/authentications/login');
 
-  it('success login', async () => {
+  it('Client should get 200 when login successfully', async () => {
     const res = await request(server)
       .post('/authentications/login')
       .send({
@@ -193,20 +120,20 @@ describe('Login', () => {
 
 // Me fonctions test
 describe('Get user info', () => {
-  it('request header include \'x-accesstoken\'', async () => {
+  it('Client should get 401 when request header doesn\'t include \'x-accesstoken\'', async () => {
     const res = await request(server)
       .get('/authentications/me');
     expect(res.status).toBe(401);
   });
 
-  it('The value of \'x-access token\' must belong to a valid expiration date record in the \'tokens\' table', async () => {
+  it('Client should get 401 when requested for resource doesn\'t have access', async () => {
     const res = await request(server)
       .get('/authentications/me')
       .set({ 'x-accessToken': 'asdasdasdasdasdasdasdasd' });
     expect(res.status).toBe(401);
   });
 
-  it('Get user info', async () => {
+  it('Client should get 200 when user info get successfully', async () => {
     const res = await request(server)
       .get('/authentications/me')
       .set({ 'x-accessToken': token.token_value });
@@ -215,20 +142,20 @@ describe('Get user info', () => {
 });
 
 describe('Update user', () => {
-  it('request header include \'x-accesstoken\'', async () => {
+  it('Client should get 401 when request header doesn\'t include \'x-accesstoken\'', async () => {
     const res = await request(server)
       .get('/authentications/me');
     expect(res.status).toBe(401);
   });
 
-  it('The value of \'x-access token\' must belong to a valid expiration date record in the \'tokens\' table', async () => {
+  it('Client should get 401 when requested for resource doesn\'t have access', async () => {
     const res = await request(server)
       .get('/authentications/me')
       .set({ 'x-accessToken': 'asdasdasdasdasdasdasdasd' });
     expect(res.status).toBe(401);
   });
 
-  it('Password is required', async () => {
+  it('Client should get error when request doesn\'t has password', async () => {
     const res = await request(server)
       .patch('/authentications/me')
       .set({ 'x-accessToken': token.token_value })
@@ -237,7 +164,7 @@ describe('Update user', () => {
       .toBe('"password" is required');
   });
 
-  it('Password must be correct', async () => {
+  it('Client should get 401 when request has worong password', async () => {
     const res = await request(server)
       .patch('/authentications/me')
       .set({ 'x-accessToken': token.token_value })
@@ -248,43 +175,7 @@ describe('Update user', () => {
       .toBe(401);
   });
 
-  it('New username must be at least 3 character', async () => {
-    const res = await request(server)
-      .patch('/authentications/me')
-      .set({ 'x-accessToken': token.token_value })
-      .send({
-        newUsername: 'a',
-        password: user.password,
-      });
-    expect(JSON.parse(res.text).errors[0].message)
-      .toBe('"newUsername" length must be at least 3 characters long');
-  });
-
-  it('New username must be no more than 30 characters', async () => {
-    const res = await request(server)
-      .patch('/authentications/me')
-      .set({ 'x-accessToken': token.token_value })
-      .send({
-        newUsername: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',
-        password: user.password,
-      });
-    expect(JSON.parse(res.text).errors[0].message)
-      .toBe('"newUsername" length must be less than or equal to 30 characters long');
-  });
-
-  it('New username must be no more than 30 characters', async () => {
-    const res = await request(server)
-      .patch('/authentications/me')
-      .set({ 'x-accessToken': token.token_value })
-      .send({
-        newUsername: 'asdas-*/½+',
-        password: user.password,
-      });
-    expect(JSON.parse(res.text).errors[0].message)
-      .toBe('"newUsername" must only contain alpha-numeric characters');
-  });
-
-  it('New username must be unique', async () => {
+  it('Clients new username must be unique', async () => {
     const res = await request(server)
       .patch('/authentications/me')
       .set({ 'x-accessToken': token.token_value })
@@ -296,7 +187,7 @@ describe('Update user', () => {
       .toBe('Username already using!');
   });
 
-  it('Update username', async () => {
+  it('Client should get 200 when update successfully', async () => {
     const res = await request(server)
       .patch('/authentications/me')
       .set({ 'x-accessToken': token.token_value })
