@@ -44,7 +44,7 @@ const create = async (req, res, next) => {
     });
   }
 
-  //Find all datasets
+  // Find all datasets
   const dataSets = await models.data_sets.findAll({
     where: {
       id: req.body.dataset_ids,
@@ -52,31 +52,31 @@ const create = async (req, res, next) => {
     },
   });
 
-  //If all given datasets available
-  if (dataSets.length===req.body.dataset_ids.length) {
-    //Prepare dataset ids array seqeulize for create process.
-    req.body.application_datasets=req.body.dataset_ids.map(di=>({dataset_id:di}))
-    try{
-      //Create application with dataset connections
-      const application = await models.applications.create(req.body,{
+  // If all given datasets available
+  if (dataSets.length === req.body.dataset_ids.length) {
+    // Prepare dataset ids array seqeulize for create process.
+    req.body.application_datasets = req.body.dataset_ids.map((di) => ({ dataset_id: di }));
+    try {
+      // Create application with dataset connections
+      const application = await models.applications.create(req.body, {
         include: [{
-          model:models.application_datasets
-        }]
-      })
-      
-      const { longitude, latitude } = req.body;     
+          model: models.application_datasets,
+        }],
+      });
+
+      const { longitude, latitude } = req.body;
       const location = await models.locations.create({
         application_id: application.id,
         longitude,
         latitude,
       });
 
-      //After create send data for debug. At live it is not required
+      // After create send data for debug. At live it is not required
       return res.status(201).send({
         application: application.toJSON(),
         location,
       });
-    }catch (err) {
+    } catch (err) {
       res.status(500).send({
         errors: [
           {
@@ -147,10 +147,9 @@ const detail = async (req, res, next) => {
 };
 
 const list = async (req, res, next) => {
-
   try {
     const applications = await models.applications.findAndCountAll({
-     include: [{
+      include: [{
         model: models.application_datasets,
         as: 'application_datasets',
         attributes:['id'],
@@ -253,10 +252,10 @@ const update = async (req, res, next) => {
       if (longitude || latitude) {
         await models.locations.update({
           leave_at: Date.now(),
-        },{
+        }, {
           where: {
             id: application.locations[application.locations.length - 1].dataValues.id,
-          }
+          },
         });
 
         await models.locations.create({
@@ -269,15 +268,14 @@ const update = async (req, res, next) => {
       return res.status(200).send({
         message: `Id= ${id} was updated succesfully`,
       });
-    } else {
-      res.status(403).send({
-        errors: [
-          {
-            message: 'Application\'s data set not found or you do not have a permission!',
-          },
-        ],
-      });
     }
+    res.status(403).send({
+      errors: [
+        {
+          message: 'Application\'s data set not found or you do not have a permission!',
+        },
+      ],
+    });
   } catch (err) {
     res.status(500).send({
       errors: [
@@ -293,8 +291,8 @@ const deleteById = async (req, res, next) => {
   const {
     id,
   } = req.params;
-  
-  //Find only applicaition. Because cascade not working correctly due to one is paranoid the other is not
+
+  // Find only applicaition. Because cascade not working correctly due to one is paranoid the other is not
   const application = await models.applications.findOne({
     where: {
       id,
@@ -302,13 +300,12 @@ const deleteById = async (req, res, next) => {
   });
 
   if (application) {
-
-    //Destroy application dataset connections
+    // Destroy application dataset connections
     await models.application_datasets.destroy({
-      where:{
-        application_id:id
-      }
-    })
+      where: {
+        application_id: id,
+      },
+    });
 
     await models.applications.destroy({
       where: {

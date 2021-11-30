@@ -17,7 +17,7 @@ const locations = Sequelize.define(
       type: DataTypes.DATE,
       allowNull: true,
       defaultValue: null,
-    }
+    },
   },
   {
     timestamps: true,
@@ -36,7 +36,7 @@ const initialize = (models) => {
   });
 };
 
-export default { 
+export default {
   model: locations,
-  initialize
+  initialize,
 };

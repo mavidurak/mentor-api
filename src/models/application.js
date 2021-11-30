@@ -65,9 +65,8 @@ const initialize = (models) => {
   );
 
   models.applications.hasMany(models.application_datasets, {
-    foreignKey: 'application_id'
+    foreignKey: 'application_id',
   });
-
 };
 
 export default {
