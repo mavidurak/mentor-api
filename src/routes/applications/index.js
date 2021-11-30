@@ -152,11 +152,16 @@ const list = async (req, res, next) => {
       include: [{
         model: models.application_datasets,
         as: 'application_datasets',
-        attributes: ['id'],
-        include: [{
-          model: models.data_sets,
-          attributes: ['id', 'title', 'data_type'],
-        }],
+        attributes:['id'],
+        include:[{
+          model:models.data_sets,
+          attributes:['id','title','data_type']
+        }]
+      },
+      {
+        model:models.locations,
+        as:"locations",
+        attributes:['longitude','latitude']
       }],
     });
 
