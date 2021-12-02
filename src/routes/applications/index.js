@@ -44,6 +44,8 @@ const create = async (req, res, next) => {
     });
   }
 
+  let requestDto = req.body
+
   //Find all datasets
   const dataSets = await models.data_sets.findAll({
     where: {
@@ -51,14 +53,14 @@ const create = async (req, res, next) => {
       user_id,
     },
   });
-  req.body.user_id=user_id
+  requestDto.user_id=user_id
   //If all given datasets available
   if (dataSets.length===req.body.dataset_ids.length) {
     //Prepare dataset ids array seqeulize for create process.
-    req.body.application_datasets=req.body.dataset_ids.map(di=>({dataset_id:di}))
+    requestDto.application_datasets=req.body.dataset_ids.map(di=>({dataset_id:di}))
     try{
       //Create application with dataset connections
-      const application = await models.applications.create(req.body,{
+      const application = await models.applications.create(requestDto,{
         include: [{
           model:models.application_datasets
         }]
