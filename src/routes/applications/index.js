@@ -98,7 +98,9 @@ const create = async (req, res, next) => {
 
 const options = async (req,res,next) =>{
   try {
-    const applications = await models.applications.findAndCountAll();
+    const applications = await models.applications.findAndCountAll({
+      attributes:['id','title'],
+    });
 
     if (applications) {
       res.send({
@@ -125,9 +127,9 @@ const options = async (req,res,next) =>{
   }
 }
 
-const datasetOptions = async (req,res,next) =>{
+const detailWithDatasetOptions = async (req,res,next) =>{
   try {
-    const applications = await models.applications.findOne({
+    const application = await models.applications.findOne({
       where:{
         id: req.params.id
       },
@@ -139,19 +141,15 @@ const datasetOptions = async (req,res,next) =>{
           model:models.data_sets,
           attributes:[
             'id',
-            'title',
-            'data_type',
-            'description',
-            'created_at',
-            'updated_at'
+            'title'
           ]
         }
       }],
     });
 
-    if (applications) {
+    if (application) {
       res.send({
-        results: applications,
+        result: application,
       });
     } else {
       res.status(403).send({
@@ -411,7 +409,7 @@ export default {
     router.post('/', create);
     router.get('/', list);
     router.get('/options', options);
-    router.get('/dataset-options/:id', datasetOptions);
+    router.get('/with-dataset-options/:id', detailWithDatasetOptions);
     router.get('/:id', detail);
     router.put('/:id', update);
     router.delete('/:id', deleteById);
