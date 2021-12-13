@@ -405,6 +405,40 @@ const deleteById = async (req, res, next) => {
   });
 };
 
+const applicationIsAlive = async (req, res) => {
+  const {id} = req.params;
+  const application = await models.applications.findOne({
+    where: {
+      id, 
+    }
+  });
+
+  if(!application){
+    return res.status(404).send({
+      message: "Application not found!",
+    });
+  }
+  return res.status(200).send(`${application.is_alive}`);
+};
+
+const setIsAlive = async (req, res) => {
+  const {id} = req.params;
+  const application = await models.applications.findOne({
+    where: {
+      id, 
+    }
+  });
+
+  if(!application){
+    return res.status(404).send({
+      message: "Application not found!",
+    });
+  }
+  application.is_alive = !application.is_alive;
+  application.save();
+  return res.status(200).send(`${application.is_alive}`);
+};
+
 export default {
   prefix: '/applications',
   inject: (router) => {
@@ -415,5 +449,7 @@ export default {
     router.get('/:id', detail);
     router.put('/:id', update);
     router.delete('/:id', deleteById);
+    router.get('/:id/health-check', applicationIsAlive);
+    router.post('/:id/health-check', setIsAlive);
   },
 };
