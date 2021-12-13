@@ -4,6 +4,7 @@ import body_parser from 'body-parser';
 import cors from 'cors';
 import router from './router';
 import pre_handlers from './pre_handlers';
+import errorHandler from './handlers/errorHandler';
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(cors());
 pre_handlers.forEach((middleware) => app.use(middleware));
 
 app.use(router);
+app.use(errorHandler);
 
 app.get('/api/health-check', (req, res) => res.status(200).send('OK'));
 

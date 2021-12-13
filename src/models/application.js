@@ -72,6 +72,14 @@ const initialize = (models) => {
     foreignKey: 'application_id'
   });
 
+  models.applications.belongsTo(models.user, {
+    as: 'user',
+    foreignKey: {
+      name: 'user_id',
+      allowNull: false,
+    },
+  });
+
 };
 
 export default {
