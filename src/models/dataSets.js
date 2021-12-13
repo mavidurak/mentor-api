@@ -34,6 +34,7 @@ const initialize = (models) => {
     },
   });
   models.data_sets.hasMany(models.application_datasets,{foreignKey: 'dataset_id'});
+  models.data_sets.hasMany(models.datas,{foreignKey: 'dataset_id'});
 };
 
 export default { model: data_sets, initialize };
