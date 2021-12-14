@@ -29,6 +29,9 @@ const create_validation = {
       .min(-90)
       .max(90)
       .required(),
+    is_alive: Joi.string()
+      .min(0)
+      .max(100)
   }),
 };
 
