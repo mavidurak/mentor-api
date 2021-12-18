@@ -44,6 +44,8 @@ const create = async (req, res, next) => {
     });
   }
 
+  let requestDto = req.body
+
   //Find all datasets
   const dataSets = await models.data_sets.findAll({
     where: {
@@ -51,14 +53,14 @@ const create = async (req, res, next) => {
       user_id,
     },
   });
-
+  requestDto.user_id=user_id
   //If all given datasets available
   if (dataSets.length===req.body.dataset_ids.length) {
     //Prepare dataset ids array seqeulize for create process.
-    req.body.application_datasets=req.body.dataset_ids.map(di=>({dataset_id:di}))
+    requestDto.application_datasets=req.body.dataset_ids.map(di=>({dataset_id:di}))
     try{
       //Create application with dataset connections
-      const application = await models.applications.create(req.body,{
+      const application = await models.applications.create(requestDto,{
         include: [{
           model:models.application_datasets
         }]
@@ -95,6 +97,81 @@ const create = async (req, res, next) => {
     ],
   });
 };
+
+const options = async (req,res,next) =>{
+  try {
+    const applications = await models.applications.findAndCountAll({
+      attributes:['id','title'],
+    });
+
+    if (applications) {
+      res.send({
+        results: applications.rows,
+        count: applications.count,
+      });
+    } else {
+      res.status(403).send({
+        errors: [
+          {
+            message: 'Application not found or you do not have a permission!',
+          },
+        ],
+      });
+    }
+  } catch (err) {
+    res.status(500).send({
+      errors: [
+        {
+          message: err.message || `Error retrieving application with id= ${id}`,
+        },
+      ],
+    });
+  }
+}
+
+const detailWithDatasetOptions = async (req,res,next) =>{
+  try {
+    const application = await models.applications.findOne({
+      where:{
+        id: req.params.id
+      },
+      include: [{
+        model: models.application_datasets,
+        as: 'application_datasets',
+        attributes:['id'],
+        include:{
+          model:models.data_sets,
+          attributes:[
+            'id',
+            'title'
+          ]
+        }
+      }],
+    });
+
+    if (application) {
+      res.send({
+        result: application,
+      });
+    } else {
+      res.status(403).send({
+        errors: [
+          {
+            message: 'Application not found or you do not have a permission!',
+          },
+        ],
+      });
+    }
+  } catch (err) {
+    res.status(500).send({
+      errors: [
+        {
+          message: err.message || `Error retrieving application with id= ${id}`,
+        },
+      ],
+    });
+  }
+}
 
 const detail = async (req, res, next) => {
   const {
@@ -328,13 +405,51 @@ const deleteById = async (req, res, next) => {
   });
 };
 
+const applicationIsAlive = async (req, res) => {
+  const {id} = req.params;
+  const application = await models.applications.findOne({
+    where: {
+      id, 
+    }
+  });
+
+  if(!application){
+    return res.status(404).send({
+      message: "Application not found!",
+    });
+  }
+  return res.status(200).send(`${application.is_alive}`);
+};
+
+const setIsAlive = async (req, res) => {
+  const {id} = req.params;
+  const application = await models.applications.findOne({
+    where: {
+      id, 
+    }
+  });
+
+  if(!application){
+    return res.status(404).send({
+      message: "Application not found!",
+    });
+  }
+  application.is_alive = !application.is_alive;
+  application.save();
+  return res.status(200).send(`${application.is_alive}`);
+};
+
 export default {
   prefix: '/applications',
   inject: (router) => {
     router.post('/', create);
     router.get('/', list);
+    router.get('/options', options);
+    router.get('/with-dataset-options/:id', detailWithDatasetOptions);
     router.get('/:id', detail);
     router.put('/:id', update);
     router.delete('/:id', deleteById);
+    router.get('/:id/health-check', applicationIsAlive);
+    router.post('/:id/health-check', setIsAlive);
   },
 };

@@ -21,6 +21,10 @@ const applications = Sequelize.define(
       defaultValue: createToken(),
     },
     secret_token: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    is_alive: {
       type: DataTypes.STRING,
       allowNull: true,
       defaultValue: createToken(),
@@ -66,6 +70,14 @@ const initialize = (models) => {
 
   models.applications.hasMany(models.application_datasets, {
     foreignKey: 'application_id'
+  });
+
+  models.applications.belongsTo(models.user, {
+    as: 'user',
+    foreignKey: {
+      name: 'user_id',
+      allowNull: false,
+    },
   });
 
 };

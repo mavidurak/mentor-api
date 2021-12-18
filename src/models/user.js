@@ -64,6 +64,14 @@ const initialize = (models) => {
   );
 
   models.user.hasMany(
+    models.applications, {
+      as: 'user_applications',
+      foreignKey: 'user_id',
+      sourceKey: 'id',
+    },
+  );
+
+  models.user.hasMany(
     models.email_confirmation_token, {
       as: 'user_email_confirmation_token',
       foreignKey: 'user_id',
