@@ -1,7 +1,7 @@
 module.exports = {
   up: async (queryInterface, Sequelize) => {
     queryInterface.addColumn('applications', 'is_alive', {
-      type: Sequelize.STRING,
+      type: Sequelize.BOOLEAN,
       defaultValue: false,
     });
   },
