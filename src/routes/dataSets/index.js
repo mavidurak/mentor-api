@@ -108,6 +108,42 @@ const detail = async (req, res, next) => {
   }
 };
 
+const detailWithDatas= async (req,res,next) =>{
+  try {
+    const dataSet = await models.data_sets.findOne({
+      where:{
+        id: req.params.id
+      },
+      include: [{
+        model: models.datas,
+        as: 'datas',
+      }],
+    });
+
+    if (dataSet) {
+      res.send({
+        result: dataSet,
+      });
+    } else {
+      res.status(403).send({
+        errors: [
+          {
+            message: 'Application not found or you do not have a permission!',
+          },
+        ],
+      });
+    }
+  } catch (err) {
+    res.status(500).send({
+      errors: [
+        {
+          message: err.message || `Error retrieving application with id= ${id}`,
+        },
+      ],
+    });
+  }
+}
+
 const update = async (req, res, next) => {
   const { id } = req.params;
   const user_id = req.user.id;
@@ -194,6 +230,7 @@ export default {
     router.get('', list);
     router.post('', create);
     router.get('/:id', detail);
+    router.get('/with-datas/:id',detailWithDatas)
     router.put('/:id', update);
     router.delete('/:id', deleteById);
   },

@@ -65,6 +65,8 @@ const create = async (req, res, next) => {
   //Prepare dataset ids array seqeulize for create process.
   value.application_datasets = value.dataset_ids.map(di => ({ dataset_id: di }))
   value.user_id = user_id
+  //Should be not permenant
+  value.is_alive = true
   try {
     //Create application with dataset connections
     const application = await models.applications.create(value, {
@@ -86,6 +88,37 @@ const create = async (req, res, next) => {
       location,
     });
   } catch (err) {
+    return res.status(500).send({
+      errors: [
+        {
+          message: err.message || `Error retrieving application with id= ${id}`,
+        },
+      ],
+    });
+  }
+};
+
+const options = async (req,res,next) =>{
+  try {
+    const applications = await models.applications.findAndCountAll({
+      attributes:['id','title'],
+    });
+
+    if (applications) {
+      res.send({
+        results: applications.rows,
+        count: applications.count,
+      });
+    } else {
+      res.status(403).send({
+        errors: [
+          {
+            message: 'Application not found or you do not have a permission!',
+          },
+        ],
+      });
+    }
+  } catch (err) {
     res.status(500).send({
       errors: [
         {
@@ -93,17 +126,52 @@ const create = async (req, res, next) => {
         },
       ],
     });
-
   }
+}
 
-  return res.status(403).send({
-    errors: [
-      {
-        message: 'Application\'s some data set not found or you do not have a permission!',
+const detailWithDatasetOptions = async (req,res,next) =>{
+  try {
+    const application = await models.applications.findOne({
+      where:{
+        id: req.params.id
       },
-    ],
-  });
-};
+      include: [{
+        model: models.application_datasets,
+        as: 'application_datasets',
+        attributes:['id'],
+        include:{
+          model:models.data_sets,
+          attributes:[
+            'id',
+            'title'
+          ]
+        }
+      }],
+    });
+
+    if (application) {
+      res.send({
+        result: application,
+      });
+    } else {
+      res.status(403).send({
+        errors: [
+          {
+            message: 'Application not found or you do not have a permission!',
+          },
+        ],
+      });
+    }
+  } catch (err) {
+    res.status(500).send({
+      errors: [
+        {
+          message: err.message || `Error retrieving application with id= ${id}`,
+        },
+      ],
+    });
+  }
+}
 
 const detail = async (req, res, next) => {
   const {
@@ -169,6 +237,11 @@ const list = async (req, res, next) => {
           model: models.data_sets,
           attributes: ['id', 'title', 'data_type']
         }]
+      },
+      {
+        model:models.locations,
+        as:"locations",
+        attributes:['longitude','latitude']
       }],
     });
 
@@ -331,13 +404,51 @@ const deleteById = async (req, res, next) => {
   });
 };
 
+const applicationIsAlive = async (req, res) => {
+  const {id} = req.params;
+  const application = await models.applications.findOne({
+    where: {
+      id, 
+    }
+  });
+
+  if(!application){
+    return res.status(404).send({
+      message: "Application not found!",
+    });
+  }
+  return res.status(200).send(`${application.is_alive}`);
+};
+
+const setIsAlive = async (req, res) => {
+  const {id} = req.params;
+  const application = await models.applications.findOne({
+    where: {
+      id, 
+    }
+  });
+
+  if(!application){
+    return res.status(404).send({
+      message: "Application not found!",
+    });
+  }
+  application.is_alive = !application.is_alive;
+  application.save();
+  return res.status(200).send(`${application.is_alive}`);
+};
+
 export default {
   prefix: '/applications',
   inject: (router) => {
     router.post('/', create);
     router.get('/', list);
+    router.get('/options', options);
+    router.get('/with-dataset-options/:id', detailWithDatasetOptions);
     router.get('/:id', detail);
     router.put('/:id', update);
     router.delete('/:id', deleteById);
+    router.get('/:id/health-check', applicationIsAlive);
+    router.post('/:id/health-check', setIsAlive);
   },
 };
