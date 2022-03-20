@@ -56,6 +56,14 @@ function createToken() {
 
 const initialize = (models) => {
 
+  models.applications.belongsTo(models.user, {
+    as: 'user',
+    foreignKey: {
+      name: 'user_id',
+      allowNull: false,
+    },
+  });
+
   models.applications.hasMany(
     models.locations, {
       as: 'locations',

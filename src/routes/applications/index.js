@@ -47,44 +47,53 @@ const create = async (req, res, next) => {
   //Find all datasets
   const dataSets = await models.data_sets.findAll({
     where: {
-      id: req.body.dataset_ids,
+      id: value.dataset_ids,
       user_id,
     },
   });
 
   //If all given datasets available
-  if (dataSets.length===req.body.dataset_ids.length) {
-    //Prepare dataset ids array seqeulize for create process.
-    req.body.application_datasets=req.body.dataset_ids.map(di=>({dataset_id:di}))
-    try{
-      //Create application with dataset connections
-      const application = await models.applications.create(req.body,{
-        include: [{
-          model:models.application_datasets
-        }]
-      })
-      
-      const { longitude, latitude } = req.body;     
-      const location = await models.locations.create({
-        application_id: application.id,
-        longitude,
-        latitude,
-      });
+  if (dataSets.length !== value.dataset_ids.length)
+    return res.status(400).send({
+      errors: [
+        {
+          message: 'Some datasets on request not found in database',
+        },
+      ],
+    });
 
-      //After create send data for debug. At live it is not required
-      return res.status(201).send({
-        application: application.toJSON(),
-        location,
-      });
-    }catch (err) {
-      res.status(500).send({
-        errors: [
-          {
-            message: err.message || `Error retrieving application with id= ${id}`,
-          },
-        ],
-      });
-    }
+  //Prepare dataset ids array seqeulize for create process.
+  value.application_datasets = value.dataset_ids.map(di => ({ dataset_id: di }))
+  value.user_id = user_id
+  try {
+    //Create application with dataset connections
+    const application = await models.applications.create(value, {
+      include: [{
+        model: models.application_datasets
+      }]
+    })
+
+    const { longitude, latitude } = value;
+    const location = await models.locations.create({
+      application_id: application.id,
+      longitude,
+      latitude,
+    });
+
+    //After create send data for debug. At live it is not required
+    return res.status(201).send({
+      application: application.toJSON(),
+      location,
+    });
+  } catch (err) {
+    res.status(500).send({
+      errors: [
+        {
+          message: err.message || `Error retrieving application with id= ${id}`,
+        },
+      ],
+    });
+
   }
 
   return res.status(403).send({
@@ -106,14 +115,16 @@ const detail = async (req, res, next) => {
     const application = await models.applications.findOne({
       where: {
         id,
+        user_id
       },
       include: [{
-        model: models.data_sets,
-        as: 'data_sets',
-        where: {
-          user_id,
-        },
-        required: true,
+        model: models.application_datasets,
+        as: 'application_datasets',
+        attributes: ['id'],
+        include: [{
+          model: models.data_sets,
+          attributes: ['id', 'title', 'data_type']
+        }]
       }, {
         model: models.locations,
         as: 'locations',
@@ -150,13 +161,13 @@ const list = async (req, res, next) => {
 
   try {
     const applications = await models.applications.findAndCountAll({
-     include: [{
+      include: [{
         model: models.application_datasets,
         as: 'application_datasets',
-        attributes:['id'],
-        include:[{
-          model:models.data_sets,
-          attributes:['id','title','data_type']
+        attributes: ['id'],
+        include: [{
+          model: models.data_sets,
+          attributes: ['id', 'title', 'data_type']
         }]
       }],
     });
@@ -204,6 +215,7 @@ const update = async (req, res, next) => {
   const {
     id,
   } = req.params;
+  const user_id = req.user.id;
 
   const {
     error,
@@ -219,15 +231,9 @@ const update = async (req, res, next) => {
     const application = await models.applications.findOne({
       where: {
         id,
+        user_id
       },
       include: [{
-        model: models.data_sets,
-        as: 'data_sets',
-        where: {
-          user_id,
-        },
-        required: true,
-      }, {
         model: models.locations,
         as: 'locations',
         where: {
@@ -238,17 +244,17 @@ const update = async (req, res, next) => {
     });
 
     if (application) {
-      await models.applications.update(req.body, {
+      await models.applications.update(value, {
         where: {
           id: application.id,
         },
       });
 
-      const { longitude, latitude } = req.body;
+      const { longitude, latitude } = value;
       if (longitude || latitude) {
         await models.locations.update({
           leave_at: Date.now(),
-        },{
+        }, {
           where: {
             id: application.locations[application.locations.length - 1].dataValues.id,
           }
@@ -288,11 +294,13 @@ const deleteById = async (req, res, next) => {
   const {
     id,
   } = req.params;
-  
+  const user_id = req.user.id;
+
   //Find only applicaition. Because cascade not working correctly due to one is paranoid the other is not
   const application = await models.applications.findOne({
     where: {
       id,
+      user_id
     },
   });
 
@@ -300,8 +308,8 @@ const deleteById = async (req, res, next) => {
 
     //Destroy application dataset connections
     await models.application_datasets.destroy({
-      where:{
-        application_id:id
+      where: {
+        application_id: id
       }
     })
 
@@ -310,7 +318,7 @@ const deleteById = async (req, res, next) => {
         id,
       },
     });
-    res.send({
+    return res.send({
       message: 'Application was deleted successfully!',
     });
   }
