@@ -25,9 +25,9 @@ const applications = Sequelize.define(
       defaultValue: false,
     },
     is_alive: {
-      type: DataTypes.STRING,
+      type: DataTypes.BOOLEAN,
       allowNull: true,
-      defaultValue: createToken(),
+      defaultValue: false,
     },
     permission_read: {
       type: DataTypes.BOOLEAN,
