@@ -98,10 +98,10 @@ const create = async (req, res, next) => {
   }
 };
 
-const options = async (req,res,next) =>{
+const options = async (req, res, next) => {
   try {
     const applications = await models.applications.findAndCountAll({
-      attributes:['id','title'],
+      attributes: ['id', 'title'],
     });
 
     if (applications) {
@@ -129,23 +129,31 @@ const options = async (req,res,next) =>{
   }
 }
 
-const detailWithDatasetOptions = async (req,res,next) =>{
+const detailWithDatasetOptions = async (req, res, next) => {
+  const id = req.params.id;
   try {
     const application = await models.applications.findOne({
-      where:{
-        id: req.params.id
+      where: {
+        id
       },
       include: [{
         model: models.application_datasets,
         as: 'application_datasets',
-        attributes:['id'],
-        include:{
-          model:models.data_sets,
-          attributes:[
+        attributes: ['id'],
+        include: {
+          model: models.data_sets,
+          attributes: [
             'id',
             'title'
           ]
-        }
+        },
+      }, {
+        model: models.locations,
+        as: 'locations',
+        where: {
+          application_id: id,
+        },
+        required: true,
       }],
     });
 
@@ -239,9 +247,9 @@ const list = async (req, res, next) => {
         }]
       },
       {
-        model:models.locations,
-        as:"locations",
-        attributes:['longitude','latitude']
+        model: models.locations,
+        as: "locations",
+        attributes: ['longitude', 'latitude']
       }],
     });
 
@@ -405,14 +413,14 @@ const deleteById = async (req, res, next) => {
 };
 
 const applicationIsAlive = async (req, res) => {
-  const {id} = req.params;
+  const { id } = req.params;
   const application = await models.applications.findOne({
     where: {
-      id, 
+      id,
     }
   });
 
-  if(!application){
+  if (!application) {
     return res.status(404).send({
       message: "Application not found!",
     });
@@ -421,14 +429,14 @@ const applicationIsAlive = async (req, res) => {
 };
 
 const setIsAlive = async (req, res) => {
-  const {id} = req.params;
+  const { id } = req.params;
   const application = await models.applications.findOne({
     where: {
-      id, 
+      id,
     }
   });
 
-  if(!application){
+  if (!application) {
     return res.status(404).send({
       message: "Application not found!",
     });

@@ -170,7 +170,7 @@ const deleteById = async (req, res, next) => {
         id
       },
     });
-    res.send({
+    return res.send({
       message: 'Application Datatset was deleted successfully!',
     });
   }
