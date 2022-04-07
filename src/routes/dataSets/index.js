@@ -67,6 +67,40 @@ const list = async (req, res, next) => {
   }
 };
 
+const options = async (req, res, next) => {
+  try {
+    const dataSets = await models.data_sets.findAndCountAll({
+      where: {
+        user_id: req.user.id,
+      },
+      attributes: ['id', 'title'],
+    });
+
+    if (dataSets) {
+      res.send({
+        results: dataSets.rows,
+        count: dataSets.count,
+      });
+    } else {
+      res.status(403).send({
+        errors: [
+          {
+            message: 'Dataset not found or you do not have a permission!',
+          },
+        ],
+      });
+    }
+  } catch (err) {
+    res.status(500).send({
+      errors: [
+        {
+          message: err.message || `Error retrieving dataset with id= ${id}`,
+        },
+      ],
+    });
+  }
+}
+
 const detail = async (req, res, next) => {
   const { id } = req.params;
   const user_id = req.user.id;
@@ -123,6 +157,60 @@ const detailWithDatas= async (req,res,next) =>{
     if (dataSet) {
       res.send({
         result: dataSet,
+      });
+    } else {
+      res.status(403).send({
+        errors: [
+          {
+            message: 'Application not found or you do not have a permission!',
+          },
+        ],
+      });
+    }
+  } catch (err) {
+    res.status(500).send({
+      errors: [
+        {
+          message: err.message || `Error retrieving application with id= ${id}`,
+        },
+      ],
+    });
+  }
+}
+
+const dataset_ids_validation = {
+
+    dataset_ids: Joi.array()
+      .min(1)
+      .required()
+      .items(Joi.number()),
+
+}
+
+const multipleDetailWithDatas= async (req,res,next) =>{
+
+  const user_id = req.user.id;
+  console.log(req.query.dataset_ids)
+  const { error, value } = dataset_ids_validation.dataset_ids.validate(req.query.dataset_ids);
+  if (error) {
+    return res.send(400, { errors: error.details });
+  }
+
+  try {
+    const dataSet = await models.data_sets.findAndCountAll({
+      where:{
+        id: value
+      },
+      include: [{
+        model: models.datas,
+        as: 'datas',
+      }],
+    });
+
+    if (dataSet) {
+      res.send({
+        result: dataSet.rows,
+        count:dataSet.count
       });
     } else {
       res.status(403).send({
@@ -228,7 +316,9 @@ export default {
   prefix: '/data-sets',
   inject: (router) => {
     router.get('', list);
+    router.get('/options',options)
     router.post('', create);
+    router.get('/multiple-with-datas/',multipleDetailWithDatas)
     router.get('/:id', detail);
     router.get('/with-datas/:id',detailWithDatas)
     router.put('/:id', update);
