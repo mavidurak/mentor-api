@@ -190,7 +190,6 @@ const dataset_ids_validation = {
 const multipleDetailWithDatas= async (req,res,next) =>{
 
   const user_id = req.user.id;
-  console.log(req.query.dataset_ids)
   const { error, value } = dataset_ids_validation.dataset_ids.validate(req.query.dataset_ids);
   if (error) {
     return res.send(400, { errors: error.details });
