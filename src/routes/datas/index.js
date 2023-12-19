@@ -1,4 +1,5 @@
 import Joi from 'joi';
+import { Op } from 'sequelize';
 
 import models from '../../models';
 
@@ -204,6 +205,80 @@ const deleteById = async (req, res, next) => {
   }
 };
 
+const getDataByDate = async (req, res, next) => {
+  const { id ,startDate,endDate} = req.params;
+  try {
+    const data = await models.datas.findAll({
+      where: {
+        dataset_id:id,
+        created_at: { [Op.and]: [{ [Op.gte]: startDate }, { [Op.lte]: endDate }] }
+      },
+    });
+    if(data.length > 0){
+      res.send({
+        data,
+      });
+    }else {
+      res.send({
+        errors: [
+          {
+            message: 'Data not found in this time interval',
+          },
+        ],
+      });
+    }
+    
+  } catch (error) {
+    return res.send({
+      errors: [
+        {
+          message: err.message,
+        },
+      ],
+    });
+  }
+}
+
+const getDataByLocation = async (req,res,next) => {
+  const {applicationId,datasetId,longitude, latitude} = req.params;
+  const application = await models.locations.findOne({
+
+    where: {
+      application_id:applicationId,
+      longitude: { [Op.lte]: longitude },
+      latitude:{ [Op.lte]: latitude },
+    },
+  });
+  if(!application){
+    res.send({
+      errors: [
+        {
+          message: 'Application not found in this location',
+        },
+      ],
+    });
+  }
+
+  const data = await models.datas.findAll({
+    where: {
+      dataset_id:datasetId,
+    },
+  });
+
+  if(!data){
+    res.send({
+      errors: [
+        {
+          message: 'Data not found in this location',
+        },
+      ],
+    });
+  }
+  res.send({
+    data,
+  });
+}
+
 export default {
   prefix: '/datas',
   inject: (router) => {
@@ -212,5 +287,8 @@ export default {
     router.post('/', add);
     router.put('/update', update);
     router.delete('/:id', deleteById);
+    router.get('/data-sets/:id/:startDate/:endDate',getDataByDate);
+    router.get('/application/:applicationId/data-sets/:datasetId/:longitude/:latitude',getDataByLocation);
+
   },
 };
